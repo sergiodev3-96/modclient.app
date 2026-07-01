@@ -17,6 +17,7 @@ export default function ConnectionPanel() {
     disconnect,
     requestPort,
     setConfig,
+    logs,
   } = useSerial();
 
   async function handleConnect() {
@@ -132,6 +133,13 @@ export default function ConnectionPanel() {
           t('connect')
         )}
       </button>
+
+      {/* Error message */}
+      {logs.length > 0 && logs[logs.length - 1].dir === 'err' && (
+        <div className="notice notice--error mt-2" style={{ fontSize: 11, padding: '6px 10px', marginTop: 8 }}>
+          {logs[logs.length - 1].text}
+        </div>
+      )}
 
       {/* Status */}
       <div className={styles.statusLine}>
