@@ -63,21 +63,21 @@ export default function MacrosPage() {
 
       // Get or create default project
       let pid = null;
-      const { data: projects } = await supabase.from('projects').select('id').eq('user_id', user.id).limit(1);
+      const { data: projects } = await supabase.from('projects').select('id').eq('user_id', user.id).limit(1) as { data: any[] | null };
       if (projects && projects.length > 0) {
         pid = projects[0].id;
       } else {
         const { data: newProj } = await supabase.from('projects').insert({
           user_id: user.id,
           name: 'Default Project',
-        }).select().single();
+        }).select('id').single() as { data: any | null };
         if (newProj) pid = newProj.id;
       }
       setProjectId(pid);
 
       // Fetch macros
       if (pid) {
-        const { data: dbMacros } = await supabase.from('macros').select('*').eq('project_id', pid).order('sort_order', { ascending: true });
+        const { data: dbMacros } = await supabase.from('macros').select('*').eq('project_id', pid).order('sort_order', { ascending: true }) as { data: any[] | null };
         if (dbMacros) {
           setMacros(dbMacros.map(m => ({
             id: m.id,
@@ -134,14 +134,14 @@ export default function MacrosPage() {
     };
 
     if (editingId) {
-      const { data } = await supabase.from('macros').update(macroData).eq('id', editingId).select().single();
+      const { data } = await supabase.from('macros').update(macroData).eq('id', editingId).select().single() as { data: any };
       if (data) {
         setMacros(prev => prev.map(m => m.id === editingId ? {
           ...m, name: data.name, color: data.color as MacroColor, actions: actionData
         } : m));
       }
     } else {
-      const { data } = await supabase.from('macros').insert(macroData).select().single();
+      const { data } = await supabase.from('macros').insert(macroData).select().single() as { data: any };
       if (data) {
         setMacros(prev => [...prev, {
           id: data.id,

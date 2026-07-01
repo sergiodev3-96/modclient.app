@@ -31,13 +31,13 @@ export default function SlaveMapPage() {
       if (profile) setUserPlan(profile.plan as 'free' | 'pro');
 
       // Get active project
-      const { data: projects } = await supabase.from('projects').select('id').eq('user_id', user.id).limit(1);
+      const { data: projects } = await supabase.from('projects').select('id').eq('user_id', user.id).limit(1) as { data: any[] | null };
       if (projects && projects.length > 0) {
         const pid = projects[0].id;
         setProjectId(pid);
         
         // Load discovered devices for this project
-        const { data: devices } = await supabase.from('discovered_devices').select('*').eq('project_id', pid);
+        const { data: devices } = await supabase.from('discovered_devices').select('*').eq('project_id', pid) as { data: any[] | null };
         if (devices) {
           const map = new Map<number, SlaveStatus>();
           devices.forEach(d => {
