@@ -56,7 +56,7 @@ export async function POST(req: Request) {
         break;
       }
       case 'customer.subscription.updated': {
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription = event.data.object as any;
         await supabase
           .from('subscriptions')
           .update({
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
         break;
       }
       case 'customer.subscription.deleted': {
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription = event.data.object as any;
         await supabase
           .from('subscriptions')
           .update({
