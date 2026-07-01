@@ -36,7 +36,7 @@ export default function ConsolePage() {
     async function loadPlan() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data: profile } = await supabase.from('profiles').select('plan').eq('id', user.id).single();
+      const { data: profile } = await supabase.from('profiles').select('plan').eq('id', user.id).single() as { data: any, error: any };
       if (profile) setUserPlan(profile.plan as 'free' | 'pro');
     }
     loadPlan();

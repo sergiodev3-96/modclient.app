@@ -29,7 +29,7 @@ export default function SettingsPage() {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .single() as { data: any, error: any };
       
       if (data) {
         setProfile({

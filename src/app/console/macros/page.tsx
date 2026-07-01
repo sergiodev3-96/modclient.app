@@ -58,7 +58,7 @@ export default function MacrosPage() {
       if (!user) return;
 
       // Get profile plan
-      const { data: profile } = await supabase.from('profiles').select('plan').eq('id', user.id).single();
+      const { data: profile } = await supabase.from('profiles').select('plan').eq('id', user.id).single() as { data: any, error: any };
       if (profile) setUserPlan(profile.plan as 'free' | 'pro');
 
       // Get or create default project
