@@ -55,7 +55,8 @@
     "written": "escrito ✓",
     "noResponse": "sin respuesta",
     "startPoll": "Iniciar Polling",
-    "stopPoll": "Detener Polling"
+    "stopPoll": "Detener Polling",
+    "autoPoll": "Auto Polling"
   },
   "macros": {
     "title": "Macros & Secuencias",
