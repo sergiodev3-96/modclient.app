@@ -55,7 +55,7 @@ export default function SettingsPage() {
 
     const { error } = await supabase
       .from('profiles')
-      .update({ display_name: displayName })
+      .update({ display_name: displayName } as any)
       .eq('id', profile.id);
 
     setIsSaving(false);

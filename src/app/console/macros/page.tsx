@@ -70,7 +70,7 @@ export default function MacrosPage() {
         const { data: newProj } = await supabase.from('projects').insert({
           user_id: user.id,
           name: 'Default Project',
-        }).select('id').single() as { data: any | null };
+        } as any).select('id').single() as { data: any | null };
         if (newProj) pid = newProj.id;
       }
       setProjectId(pid);
@@ -134,14 +134,14 @@ export default function MacrosPage() {
     };
 
     if (editingId) {
-      const { data } = await supabase.from('macros').update(macroData).eq('id', editingId).select().single() as { data: any };
+      const { data } = await supabase.from('macros').update(macroData as any).eq('id', editingId).select().single() as { data: any };
       if (data) {
         setMacros(prev => prev.map(m => m.id === editingId ? {
           ...m, name: data.name, color: data.color as MacroColor, actions: actionData
         } : m));
       }
     } else {
-      const { data } = await supabase.from('macros').insert(macroData).select().single() as { data: any };
+      const { data } = await supabase.from('macros').insert(macroData as any).select().single() as { data: any };
       if (data) {
         setMacros(prev => [...prev, {
           id: data.id,
