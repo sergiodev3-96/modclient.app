@@ -4,7 +4,7 @@ import { toHex } from '../modbus/frames';
 type EventHandler<T = void> = (data: T) => void;
 
 export class SerialManager extends EventTarget {
-  private port: SerialPort | null = null;
+  private port: any = null;
   private reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
   private writer: WritableStreamDefaultWriter<Uint8Array> | null = null;
   private keepReading = false;
@@ -38,7 +38,7 @@ export class SerialManager extends EventTarget {
       return false;
     }
     try {
-      this.port = await navigator.serial.requestPort();
+      this.port = await (navigator as any).serial.requestPort();
       this.hasPort = true;
       this.log('info', 'Port selected. Configure parameters and click Connect.');
       return true;
@@ -136,7 +136,7 @@ export class SerialManager extends EventTarget {
       this.reader = this.port.readable.getReader();
       try {
         while (true) {
-          const { value, done } = await this.reader.read();
+          const { value, done } = await this.reader!.read();
           if (done) break;
           if (value) {
             this.rxBuffer.push(...value);
