@@ -37,7 +37,7 @@ const NAV_ITEMS = [
   { key: 'macros',    href: '/console/macros', icon: Zap },
   { key: 'scan',      href: '/console/scan', icon: Cpu },
   { key: 'logs',      href: '/console/logs', icon: LayoutDashboard },
-  { key: 'slave-map', href: '/console/slave-map', icon: Network },
+  { key: 'slaveMap',  href: '/console/slave-map', icon: Network },
   { key: 'settings',  href: '/console/settings', icon: Settings },
 ];
 
@@ -103,20 +103,6 @@ export default function AppShell({ user, profile, children }: AppShellProps) {
           </>
         )}
 
-        {/* Nav Items */}
-        <nav className={styles.sidebarNav}>
-          {NAV_ITEMS.map(item => (
-            <Link
-              key={item.key}
-              href={item.href}
-              className={`${styles.navLink} ${isActive(item.href, item.exact) ? styles.navLinkActive : ''}`}
-            >
-              <item.icon size={18} />
-              {!sidebarCollapsed && <span>{t(item.key as any)}</span>}
-            </Link>
-          ))}
-        </nav>
-
         {/* Spacer */}
         <div style={{ flex: 1 }} />
 
@@ -159,6 +145,18 @@ export default function AppShell({ user, profile, children }: AppShellProps) {
               <Zap size={14} style={{ color: 'var(--accent)' }} />
               <span className={styles.topBrandName}>modclient</span>
             </span>
+
+            {NAV_ITEMS.map(item => (
+              <Link
+                key={item.key}
+                href={item.href}
+                className={`${styles.navTab} ${isActive(item.href, item.exact) ? styles.navTabActive : ''}`}
+                style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+              >
+                <item.icon size={14} />
+                <span>{t(item.key as any)}</span>
+              </Link>
+            ))}
           </nav>
 
           {/* Right controls */}
