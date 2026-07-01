@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { STRIPE_PRICE_ID } from '@/lib/stripe/config';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-01-27.acacia',
+  apiVersion: '2026-06-24.dahlia',
 });
 
 export async function POST() {
