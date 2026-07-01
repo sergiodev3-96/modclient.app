@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Acceso a Consola de Ingeniería - Modbus RTU</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#93000a",
+                        "secondary": "#4ddcc6",
+                        "on-secondary-fixed": "#00201b",
+                        "on-secondary-container": "#003f37",
+                        "on-tertiary": "#003917",
+                        "inverse-surface": "#dfe2eb",
+                        "secondary-fixed": "#6ef9e2",
+                        "outline-variant": "#524439",
+                        "primary-container": "#f0a868",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#96f8aa",
+                        "on-tertiary-fixed-variant": "#005225",
+                        "primary": "#ffc89b",
+                        "surface-dim": "#10141a",
+                        "on-background": "#dfe2eb",
+                        "bg-raised": "#22262B",
+                        "text-dim": "#8B9198",
+                        "secondary-container": "#00b4a0",
+                        "on-surface": "#dfe2eb",
+                        "surface-container": "#1c2026",
+                        "surface-container-low": "#181c22",
+                        "surface": "#10141a",
+                        "inverse-primary": "#895119",
+                        "on-primary-fixed-variant": "#6c3a01",
+                        "on-secondary-fixed-variant": "#005047",
+                        "on-error": "#690005",
+                        "bg-panel": "#161B22",
+                        "on-primary": "#4c2700",
+                        "tertiary": "#86e89b",
+                        "surface-tint": "#ffb779",
+                        "on-primary-fixed": "#2e1500",
+                        "on-primary-container": "#6e3c02",
+                        "surface-container-high": "#262a31",
+                        "error": "#E2635A",
+                        "tertiary-fixed-dim": "#7adb90",
+                        "border-subtle": "#2E3439",
+                        "on-surface-variant": "#d7c3b5",
+                        "on-tertiary-container": "#005425",
+                        "text-faint": "#5B6167",
+                        "surface-bright": "#353940",
+                        "on-tertiary-fixed": "#00210b",
+                        "surface-container-lowest": "#0a0e14",
+                        "text-primary": "#E6EDF3",
+                        "surface-variant": "#31353c",
+                        "tertiary-container": "#6bcb82",
+                        "outline": "#9f8d81",
+                        "background": "#10141a",
+                        "secondary-fixed-dim": "#4ddcc6",
+                        "on-secondary": "#003730",
+                        "primary-fixed-dim": "#ffb779",
+                        "primary-fixed": "#ffdcc1",
+                        "surface-container-highest": "#31353c",
+                        "inverse-on-surface": "#2d3137"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-page": "24px",
+                        "card-padding": "16px",
+                        "gutter": "12px",
+                        "unit": "4px",
+                        "input-gap": "8px"
+                    },
+                    "fontFamily": {
+                        "mono-data": ["IBM Plex Mono"],
+                        "mono-sm": ["IBM Plex Mono"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "label-caps": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono-data": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "mono-sm": ["11px", { "lineHeight": "14px", "fontWeight": "400" }],
+                        "headline-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        
+        .circuit-bg {
+            background-image: radial-gradient(circle at 50% 50%, rgba(255, 200, 155, 0.03) 0%, transparent 60%),
+                              linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            background-position: 0 0, -1px -1px, -1px -1px;
+        }
+
+        .input-glow:focus-within {
+            box-shadow: 0 0 0 1px theme('colors.primary');
+            border-color: theme('colors.primary');
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center relative overflow-hidden font-body-md text-body-md antialiased circuit-bg">
+<!-- Decorative Elements -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden flex justify-center items-center opacity-30">
+<div class="w-[800px] h-[800px] border border-border-subtle rounded-full absolute -top-[400px] -right-[200px]"></div>
+<div class="w-[600px] h-[600px] border border-border-subtle rounded-full absolute -bottom-[300px] -left-[100px]"></div>
+<div class="absolute right-[15%] top-[25%] text-text-faint font-mono-sm opacity-50 flex flex-col gap-2">
+<span>TX: 01 03 00 00 00 0A C5 CD</span>
+<span>RX: 01 03 14 00 00 00 00 ...</span>
+<span>ERR: NONE</span>
+<span>BAUD: 9600</span>
+</div>
+<div class="absolute left-[10%] bottom-[20%] text-text-faint font-mono-sm opacity-50 flex flex-col gap-2 text-right">
+<span>SYS_INIT: OK</span>
+<span>PORT_COM3: ACTIVE</span>
+<span>MEM_USE: 12%</span>
+</div>
+</div>
+<!-- Login Container -->
+<main class="w-full max-w-md relative z-10 px-margin-page">
+<!-- Brand Header -->
+<div class="text-center mb-8">
+<div class="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-surface-container border border-border-subtle mb-6">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-text-primary mb-2">Acceso a Consola de Ingeniería</h1>
+<p class="text-text-dim">Autenticación requerida para acceder al sistema Modbus RTU.</p>
+</div>
+<!-- Login Form -->
+<div class="bg-surface-container rounded-lg border border-border-subtle p-8 shadow-2xl">
+<form action="#" class="space-y-6" method="POST">
+<!-- Username Field -->
+<div>
+<label class="block font-label-caps text-label-caps text-text-dim mb-input-gap uppercase" for="username">Usuario</label>
+<div class="relative group input-glow rounded transition-all duration-200">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-text-faint group-focus-within:text-primary transition-colors text-[18px]">person</span>
+</div>
+<input class="block w-full bg-bg-raised border border-border-subtle rounded py-2 pl-10 pr-3 text-text-primary font-mono-data text-mono-data placeholder-text-faint focus:ring-0 focus:outline-none transition-colors" id="username" name="username" placeholder="admin_eng" required="" type="text"/>
+</div>
+</div>
+<!-- Password Field -->
+<div>
+<div class="flex items-center justify-between mb-input-gap">
+<label class="block font-label-caps text-label-caps text-text-dim uppercase" for="password">Contraseña</label>
+<a class="font-label-sm text-label-sm text-primary hover:text-primary-container transition-colors" href="#">Recuperar acceso</a>
+</div>
+<div class="relative group input-glow rounded transition-all duration-200">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-text-faint group-focus-within:text-primary transition-colors text-[18px]">lock</span>
+</div>
+<input class="block w-full bg-bg-raised border border-border-subtle rounded py-2 pl-10 pr-3 text-text-primary font-mono-data text-mono-data placeholder-text-faint focus:ring-0 focus:outline-none transition-colors" id="password" name="password" placeholder="••••••••" required="" type="password"/>
+</div>
+</div>
+<!-- Security Warning -->
+<div class="flex items-start bg-surface-container-high rounded p-3 border border-border-subtle gap-3">
+<span class="material-symbols-outlined text-secondary text-[20px] mt-0.5" style="font-variation-settings: 'FILL' 1;">shield</span>
+<p class="font-label-sm text-label-sm text-text-dim">Conexión cifrada. Todos los intentos de acceso son registrados auditados por seguridad del sistema.</p>
+</div>
+<!-- Submit Button -->
+<button class="w-full flex justify-center py-3 px-4 border border-transparent rounded bg-primary text-on-primary font-headline-md text-headline-md hover:bg-primary-container focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-background transition-colors active:scale-[0.98]" type="submit">
+                    Iniciar Sesión Segura
+                </button>
+</form>
+</div>
+<!-- Footer -->
+<div class="mt-8 text-center flex flex-col gap-1">
+<p class="font-mono-sm text-mono-sm text-text-faint">Consola Modbus RTU v2.4.1</p>
+<p class="font-mono-sm text-mono-sm text-text-faint">ID: Node-Alpha-07</p>
+</div>
+</main>
+<script>
+        // Simple subtle interaction for form inputs
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.classList.add('border-primary');
+                input.parentElement.classList.remove('border-border-subtle');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.classList.remove('border-primary');
+                input.parentElement.classList.add('border-border-subtle');
+            });
+        });
+    </script>
+</body></html>

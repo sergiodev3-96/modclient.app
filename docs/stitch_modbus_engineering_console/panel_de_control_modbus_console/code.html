@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Consola Modbus RTU - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#93000a",
+                        "secondary": "#4ddcc6",
+                        "on-secondary-fixed": "#00201b",
+                        "on-secondary-container": "#003f37",
+                        "on-tertiary": "#003917",
+                        "inverse-surface": "#dfe2eb",
+                        "secondary-fixed": "#6ef9e2",
+                        "outline-variant": "#524439",
+                        "primary-container": "#f0a868",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#96f8aa",
+                        "on-tertiary-fixed-variant": "#005225",
+                        "primary": "#ffc89b",
+                        "surface-dim": "#10141a",
+                        "on-background": "#dfe2eb",
+                        "bg-raised": "#22262B",
+                        "text-dim": "#8B9198",
+                        "secondary-container": "#00b4a0",
+                        "on-surface": "#dfe2eb",
+                        "surface-container": "#1c2026",
+                        "surface-container-low": "#181c22",
+                        "surface": "#10141a",
+                        "inverse-primary": "#895119",
+                        "on-primary-fixed-variant": "#6c3a01",
+                        "on-secondary-fixed-variant": "#005047",
+                        "on-error": "#690005",
+                        "bg-panel": "#161B22",
+                        "on-primary": "#4c2700",
+                        "tertiary": "#86e89b",
+                        "surface-tint": "#ffb779",
+                        "on-primary-fixed": "#2e1500",
+                        "on-primary-container": "#6e3c02",
+                        "surface-container-high": "#262a31",
+                        "error": "#E2635A",
+                        "tertiary-fixed-dim": "#7adb90",
+                        "border-subtle": "#2E3439",
+                        "on-surface-variant": "#d7c3b5",
+                        "on-tertiary-container": "#005425",
+                        "text-faint": "#5B6167",
+                        "surface-bright": "#353940",
+                        "on-tertiary-fixed": "#00210b",
+                        "surface-container-lowest": "#0a0e14",
+                        "text-primary": "#E6EDF3",
+                        "surface-variant": "#31353c",
+                        "tertiary-container": "#6bcb82",
+                        "outline": "#9f8d81",
+                        "background": "#10141a",
+                        "secondary-fixed-dim": "#4ddcc6",
+                        "on-secondary": "#003730",
+                        "primary-fixed-dim": "#ffb779",
+                        "primary-fixed": "#ffdcc1",
+                        "surface-container-highest": "#31353c",
+                        "inverse-on-surface": "#2d3137"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-page": "24px",
+                        "card-padding": "16px",
+                        "gutter": "12px",
+                        "unit": "4px",
+                        "input-gap": "8px"
+                    },
+                    "fontFamily": {
+                        "mono-data": ["IBM Plex Mono", "monospace"],
+                        "mono-sm": ["IBM Plex Mono", "monospace"],
+                        "headline-lg": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "headline-md": ["Inter", "sans-serif"],
+                        "label-sm": ["Inter", "sans-serif"],
+                        "label-caps": ["Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "mono-data": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "mono-sm": ["11px", { "lineHeight": "14px", "fontWeight": "400" }],
+                        "headline-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        
+        /* Custom scrollbar for data tables */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: theme('colors.surface-container'); 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.surface-variant'); 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.text-dim'); 
+        }
+        
+        .status-glow {
+            box-shadow: 0 0 8px 1px theme('colors.primary');
+        }
+        .status-glow-success {
+            box-shadow: 0 0 8px 1px theme('colors.tertiary');
+        }
+        .status-glow-error {
+            box-shadow: 0 0 8px 1px theme('colors.error');
+        }
+    </style>
+</head>
+<body class="h-screen w-full flex overflow-hidden font-body-md text-body-md bg-background">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-screen w-64 border-r border-border-subtle bg-surface-container shrink-0 z-10 overflow-y-auto relative">
+<div class="p-6 border-b border-border-subtle">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary mb-1">Modbus Master</h1>
+<p class="font-mono-sm text-mono-sm text-text-dim flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary status-glow-success"></span>
+                COM3: 9600-8N1-CONNECTED
+            </p>
+</div>
+<div class="px-4 py-6">
+<button class="w-full bg-primary hover:bg-primary-container text-on-primary font-headline-md text-headline-md font-semibold py-2 px-4 rounded transition-colors duration-200 flex justify-center items-center gap-2 shadow-sm mb-6">
+<span class="material-symbols-outlined" data-icon="add" style="font-variation-settings: 'FILL' 0;">add</span>
+                New Connection
+            </button>
+<nav class="flex flex-col gap-1">
+<!-- Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 rounded bg-secondary-container text-on-secondary-container font-semibold border-l-4 border-primary group" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span>Dashboard</span>
+</a>
+<!-- Serial Config -->
+<a class="flex items-center gap-3 px-4 py-3 rounded text-text-dim hover:text-on-surface hover:bg-surface-bright transition-colors duration-200 group border-l-4 border-transparent" href="#">
+<span class="material-symbols-outlined" data-icon="settings_ethernet" style="font-variation-settings: 'FILL' 0;">settings_ethernet</span>
+<span>Serial Config</span>
+</a>
+<!-- Slave Map -->
+<a class="flex items-center gap-3 px-4 py-3 rounded text-text-dim hover:text-on-surface hover:bg-surface-bright transition-colors duration-200 group border-l-4 border-transparent" href="#">
+<span class="material-symbols-outlined" data-icon="settings_input_component" style="font-variation-settings: 'FILL' 0;">settings_input_component</span>
+<span>Slave Map</span>
+</a>
+<!-- Diagnostics -->
+<a class="flex items-center gap-3 px-4 py-3 rounded text-text-dim hover:text-on-surface hover:bg-surface-bright transition-colors duration-200 group border-l-4 border-transparent" href="#">
+<span class="material-symbols-outlined" data-icon="terminal" style="font-variation-settings: 'FILL' 0;">terminal</span>
+<span>Diagnostics</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-3 px-4 py-3 rounded text-text-dim hover:text-on-surface hover:bg-surface-bright transition-colors duration-200 group border-l-4 border-transparent" href="#">
+<span class="material-symbols-outlined" data-icon="settings" style="font-variation-settings: 'FILL' 0;">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto border-t border-border-subtle p-4">
+<a class="flex items-center gap-3 px-4 py-2 rounded text-text-dim hover:text-on-surface hover:bg-surface-bright transition-colors duration-200 w-full" href="#">
+<span class="material-symbols-outlined" data-icon="logout" style="font-variation-settings: 'FILL' 0;">logout</span>
+<span>Log Out</span>
+</a>
+<div class="mt-4 flex items-center gap-3 px-4">
+<img alt="Engineer Profile" class="w-8 h-8 rounded-full bg-surface-variant object-cover border border-border-subtle" data-alt="A small circular avatar placeholder for an industrial engineer profile in a dark UI dashboard. The image should be a professional, neutral silhouette or technical icon suitable for a technical control panel. 64x64 resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5s-PlBujAKF84K_OqSr69qY-SHoSl31gWkZlQoKA6M7h6UsE0cH6o9k539VbGbEsoxwXAHSTifhVDHZjBLCsCrB6WISzLQYnc6DQXsM4sPoity6di-EKgOui7GKsUQ-SlEuRSinkol_ce1lh27L7gBdoVGGGuGrUQTBtW8MZLuO7_aaPYIpver2GKOrrEDX6xY7b528WjdIfnWUQCzstuOUhbrW3_8MiEZRl3KLr9MWd4cRmjU7Cv2Qg7CkCYVTSK2HvV44tfl0g"/>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-text-primary font-medium">J. Doe</span>
+<span class="font-mono-sm text-mono-sm text-text-dim">Admin</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full bg-background relative overflow-hidden">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-margin-page h-16 border-b border-border-subtle bg-surface dark:bg-surface shrink-0 z-20">
+<div class="flex items-center gap-6">
+<!-- Mobile Menu Button (Visible only on md<) -->
+<button class="md:hidden text-text-dim hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="menu" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<div class="font-headline-lg text-headline-lg font-black text-primary hidden md:block">Industrial Modbus RTU</div>
+<div class="font-headline-lg-mobile text-headline-lg-mobile font-black text-primary md:hidden">Modbus RTU</div>
+</div>
+<nav class="hidden md:flex h-full">
+<a class="h-full flex items-center px-4 font-headline-md text-headline-md text-primary border-b-2 border-primary pt-2 transition-all duration-200" href="#">Registers</a>
+<a class="h-full flex items-center px-4 font-headline-md text-headline-md text-text-dim hover:text-on-surface transition-all duration-200" href="#">Macros</a>
+<a class="h-full flex items-center px-4 font-headline-md text-headline-md text-text-dim hover:text-on-surface transition-all duration-200" href="#">Scan</a>
+<a class="h-full flex items-center px-4 font-headline-md text-headline-md text-text-dim hover:text-on-surface transition-all duration-200" href="#">Logs</a>
+</nav>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center bg-bg-raised border border-border-subtle rounded px-3 py-1.5 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<span class="material-symbols-outlined text-text-dim mr-2 text-sm" data-icon="search" style="font-variation-settings: 'FILL' 0;">search</span>
+<input class="bg-transparent border-none outline-none font-mono-sm text-mono-sm text-text-primary placeholder-text-dim w-48 focus:ring-0 p-0" placeholder="Search registers..." type="text"/>
+</div>
+<div class="flex gap-2">
+<button class="bg-bg-raised hover:bg-surface-bright text-text-primary font-label-caps text-label-caps uppercase px-3 py-1.5 rounded border border-border-subtle transition-colors">Stop</button>
+<button class="bg-primary hover:bg-primary-container text-on-primary font-label-caps text-label-caps uppercase px-3 py-1.5 rounded transition-colors font-bold shadow-sm">Start Poll</button>
+</div>
+<div class="flex items-center gap-2 text-text-dim border-l border-border-subtle pl-4 ml-2">
+<button class="hover:text-primary transition-colors cursor-pointer active:scale-95 p-1 rounded-full hover:bg-surface-bright">
+<span class="material-symbols-outlined" data-icon="notifications" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+<button class="hover:text-primary transition-colors cursor-pointer active:scale-95 p-1 rounded-full hover:bg-surface-bright">
+<span class="material-symbols-outlined" data-icon="help_outline" style="font-variation-settings: 'FILL' 0;">help_outline</span>
+</button>
+<img alt="User Avatar" class="w-8 h-8 rounded-full ml-2 object-cover border border-border-subtle" data-alt="A sleek, high-tech industrial dashboard avatar placeholder. Dark grey background with a sharp geometric user silhouette in light grey. Professional and clean, fitting a dark mode data-heavy interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB84Hp82vHgbAbiQl0WRyCtniQvpGegwGnN7zPxvq7BfnfgtCY7WEHqyQqnoHl6iDxy96_NKjLGH-HrQ6hnbm8PZ9wVRaqcSrWWkObahqZ0j0yNfq6nwocQW0_1vU1LgRih2O5WAvK6qvmetP7z5t2FYFF7FU-EEhWv8snJt32aK8NW5n-vuFApSK0vHfCkgZX0-wf_HjsMg4_vKPaqJg4ea5TsZAT7pq4UlinzAQGpk0olGqSgTYKY72hQCDQLvx5b5HHUpVa1Ljg"/>
+</div>
+</div>
+</header>
+<!-- Canvas / Dashboard Content -->
+<div class="flex-1 overflow-y-auto p-margin-page bg-background">
+<!-- Dashboard Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter max-w-[1600px] mx-auto">
+<!-- Main Configuration Panel (Left/Top) -->
+<div class="col-span-1 lg:col-span-8 flex flex-col gap-gutter">
+<!-- Read/Write Form Area -->
+<section class="bg-bg-panel border border-border-subtle rounded-lg p-card-padding flex flex-col shadow-sm">
+<div class="flex justify-between items-center mb-4 pb-2 border-b border-border-subtle">
+<h2 class="font-headline-md text-headline-md font-semibold text-text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="memory" style="font-variation-settings: 'FILL' 0;">memory</span>
+                                Register Access
+                            </h2>
+<div class="flex gap-2">
+<span class="bg-secondary text-on-secondary font-mono-sm text-mono-sm px-2 py-0.5 rounded-sm">ID: 01</span>
+<span class="bg-surface-variant text-text-dim font-mono-sm text-mono-sm px-2 py-0.5 rounded-sm border border-border-subtle">FC: 03</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-text-dim uppercase tracking-wider">Slave Address</label>
+<input class="bg-bg-raised border border-border-subtle rounded p-2 font-mono-data text-mono-data text-text-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors w-full" type="number" value="1"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-text-dim uppercase tracking-wider">Starting Address</label>
+<div class="flex">
+<span class="bg-surface-variant border border-r-0 border-border-subtle rounded-l px-2 flex items-center font-mono-sm text-text-dim">4</span>
+<input class="bg-bg-raised border border-border-subtle rounded-r p-2 font-mono-data text-mono-data text-text-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors w-full" type="text" value="0001"/>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-text-dim uppercase tracking-wider">Quantity</label>
+<input class="bg-bg-raised border border-border-subtle rounded p-2 font-mono-data text-mono-data text-text-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors w-full" type="number" value="10"/>
+</div>
+</div>
+<div class="flex justify-end gap-3 border-t border-border-subtle pt-4 mt-auto">
+<button class="bg-bg-raised hover:bg-surface-bright text-text-primary border border-border-subtle font-label-caps text-label-caps px-4 py-2 rounded transition-colors uppercase">Write (FC06/16)</button>
+<button class="bg-secondary-container hover:bg-secondary text-on-secondary font-label-caps text-label-caps px-4 py-2 rounded transition-colors uppercase font-bold shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="download" style="font-variation-settings: 'FILL' 0;">download</span>
+                                Read (FC03/04)
+                            </button>
+</div>
+</section>
+<!-- Data Grid (Results) -->
+<section class="bg-bg-panel border border-border-subtle rounded-lg flex flex-col flex-1 shadow-sm min-h-[300px]">
+<div class="p-card-padding border-b border-border-subtle flex justify-between items-center bg-surface-container-low rounded-t-lg">
+<h3 class="font-headline-md text-headline-md font-semibold text-text-primary">Holding Registers (4x)</h3>
+<div class="flex items-center gap-3">
+<select class="bg-bg-raised border border-border-subtle rounded p-1 font-mono-sm text-mono-sm text-text-primary focus:border-primary outline-none">
+<option>HEX</option>
+<option selected="">DEC (Signed)</option>
+<option>DEC (Unsigned)</option>
+<option>Float (ABCD)</option>
+</select>
+<button class="text-text-dim hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="refresh" style="font-variation-settings: 'FILL' 0;">refresh</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto overflow-y-auto flex-1 p-2">
+<table class="w-full text-left border-collapse font-mono-data text-mono-data">
+<thead>
+<tr class="text-text-dim border-b border-border-subtle">
+<th class="py-2 px-3 font-medium w-24">Address</th>
+<th class="py-2 px-3 font-medium w-32">Value (Raw)</th>
+<th class="py-2 px-3 font-medium w-32">Value (Conv)</th>
+<th class="py-2 px-3 font-medium">Description</th>
+</tr>
+</thead>
+<tbody>
+<!-- Row 1 -->
+<tr class="border-b border-border-subtle hover:bg-surface-bright transition-colors group cursor-pointer">
+<td class="py-2 px-3 text-secondary">40001</td>
+<td class="py-2 px-3 text-text-primary">00 00</td>
+<td class="py-2 px-3 text-primary-fixed">0</td>
+<td class="py-2 px-3 text-text-dim group-hover:text-text-primary truncate">System Status</td>
+</tr>
+<!-- Row 2 -->
+<tr class="border-b border-border-subtle hover:bg-surface-bright transition-colors group cursor-pointer bg-surface-container-low">
+<td class="py-2 px-3 text-secondary">40002</td>
+<td class="py-2 px-3 text-text-primary">08 FC</td>
+<td class="py-2 px-3 text-primary-fixed">2300</td>
+<td class="py-2 px-3 text-text-dim group-hover:text-text-primary truncate">Voltage L1-N (x10 V)</td>
+</tr>
+<!-- Row 3 -->
+<tr class="border-b border-border-subtle hover:bg-surface-bright transition-colors group cursor-pointer">
+<td class="py-2 px-3 text-secondary">40003</td>
+<td class="py-2 px-3 text-text-primary">00 32</td>
+<td class="py-2 px-3 text-primary-fixed">50</td>
+<td class="py-2 px-3 text-text-dim group-hover:text-text-primary truncate">Frequency (x10 Hz)</td>
+</tr>
+<!-- Row 4 -->
+<tr class="border-b border-border-subtle hover:bg-surface-bright transition-colors group cursor-pointer bg-surface-container-low">
+<td class="py-2 px-3 text-secondary">40004</td>
+<td class="py-2 px-3 text-text-primary">12 4A</td>
+<td class="py-2 px-3 text-primary-fixed">4682</td>
+<td class="py-2 px-3 text-text-dim group-hover:text-text-primary truncate">Active Power (W)</td>
+</tr>
+<!-- Row 5 - Error State -->
+<tr class="border-b border-border-subtle bg-error-container/20 hover:bg-error-container/30 transition-colors group cursor-pointer">
+<td class="py-2 px-3 text-error">40005</td>
+<td class="py-2 px-3 text-error">FF FF</td>
+<td class="py-2 px-3 text-error">-1</td>
+<td class="py-2 px-3 text-error truncate flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="error" style="font-variation-settings: 'FILL' 1;">error</span>
+                                            Timeout Exception
+                                        </td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<!-- Side Panel (Right/Bottom) -->
+<div class="col-span-1 lg:col-span-4 flex flex-col gap-gutter">
+<!-- Serial Comms Monitor -->
+<section class="bg-bg-panel border border-border-subtle rounded-lg flex flex-col shadow-sm h-[400px]">
+<div class="p-3 border-b border-border-subtle bg-surface-container-low rounded-t-lg flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md font-semibold text-text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="terminal" style="font-variation-settings: 'FILL' 0;">terminal</span>
+                                Traffic Log
+                            </h3>
+<button class="text-text-dim hover:text-primary transition-colors" title="Clear Log">
+<span class="material-symbols-outlined text-sm" data-icon="delete" style="font-variation-settings: 'FILL' 0;">delete</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-3 font-mono-data text-mono-data bg-surface-container-lowest leading-relaxed">
+<div class="mb-1 border-b border-surface-variant pb-1">
+<span class="text-text-dim text-xs mr-2">[10:45:01.234]</span>
+<span class="text-secondary font-semibold mr-1">TX:</span>
+<span class="text-secondary-fixed">01 03 00 00 00 0A C5 CD</span>
+</div>
+<div class="mb-1 border-b border-surface-variant pb-1">
+<span class="text-text-dim text-xs mr-2">[10:45:01.280]</span>
+<span class="text-primary font-semibold mr-1">RX:</span>
+<span class="text-primary-fixed">01 03 14 00 00 08 FC 00 32 12 4A 00 00 00 00 00 00 00 00 00 00 00 00 9A F4</span>
+</div>
+<div class="mb-1 border-b border-surface-variant pb-1">
+<span class="text-text-dim text-xs mr-2">[10:45:02.234]</span>
+<span class="text-secondary font-semibold mr-1">TX:</span>
+<span class="text-secondary-fixed">01 03 00 00 00 0A C5 CD</span>
+</div>
+<div class="mb-1 border-b border-surface-variant pb-1">
+<span class="text-text-dim text-xs mr-2">[10:45:02.278]</span>
+<span class="text-primary font-semibold mr-1">RX:</span>
+<span class="text-primary-fixed">01 03 14 00 00 08 FB 00 32 12 4C 00 00 00 00 00 00 00 00 00 00 00 00 F2 8E</span>
+</div>
+<!-- Error frame -->
+<div class="mb-1 border-b border-surface-variant pb-1 bg-error-container/10">
+<span class="text-text-dim text-xs mr-2">[10:45:03.234]</span>
+<span class="text-secondary font-semibold mr-1">TX:</span>
+<span class="text-secondary-fixed">01 03 00 04 00 01 C5 CB</span>
+</div>
+<div class="mb-1 border-b border-surface-variant pb-1 bg-error-container/20">
+<span class="text-text-dim text-xs mr-2">[10:45:03.450]</span>
+<span class="text-error font-semibold mr-1">ERR:</span>
+<span class="text-error">TIMEOUT waiting for response</span>
+</div>
+<!-- Blinking cursor -->
+<div class="mt-2 animate-pulse w-2 h-4 bg-primary inline-block"></div>
+</div>
+<div class="p-2 border-t border-border-subtle bg-surface-container flex gap-2">
+<label class="flex items-center gap-2 cursor-pointer">
+<input checked="" class="form-checkbox bg-bg-raised border-border-subtle text-primary rounded-sm focus:ring-primary focus:ring-offset-surface" type="checkbox"/>
+<span class="font-label-sm text-label-sm text-text-dim">Auto-scroll</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer ml-4">
+<input checked="" class="form-checkbox bg-bg-raised border-border-subtle text-primary rounded-sm focus:ring-primary focus:ring-offset-surface" type="checkbox"/>
+<span class="font-label-sm text-label-sm text-text-dim">Show Hex</span>
+</label>
+</div>
+</section>
+<!-- Quick Macros / Actions -->
+<section class="bg-bg-panel border border-border-subtle rounded-lg p-card-padding flex flex-col shadow-sm flex-1">
+<h3 class="font-headline-md text-headline-md font-semibold text-text-primary mb-4 pb-2 border-b border-border-subtle flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="bolt" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                            Quick Macros
+                        </h3>
+<div class="grid grid-cols-2 gap-3">
+<button class="bg-bg-raised hover:bg-surface-bright border border-border-subtle p-3 rounded flex flex-col items-start gap-1 transition-colors text-left group">
+<span class="font-label-sm text-label-sm text-primary group-hover:text-primary-container font-semibold">Reset Device</span>
+<span class="font-mono-sm text-mono-sm text-text-dim">FC05 @ 0000 = FF00</span>
+</button>
+<button class="bg-bg-raised hover:bg-surface-bright border border-border-subtle p-3 rounded flex flex-col items-start gap-1 transition-colors text-left group">
+<span class="font-label-sm text-label-sm text-secondary group-hover:text-secondary-container font-semibold">Read All Info</span>
+<span class="font-mono-sm text-mono-sm text-text-dim">FC03 @ 0000..0014</span>
+</button>
+<button class="bg-bg-raised hover:bg-surface-bright border border-border-subtle p-3 rounded flex flex-col items-start gap-1 transition-colors text-left group">
+<span class="font-label-sm text-label-sm text-tertiary group-hover:text-tertiary-container font-semibold">Clear Alarms</span>
+<span class="font-mono-sm text-mono-sm text-text-dim">FC16 @ 0100..0102</span>
+</button>
+<button class="bg-surface border border-dashed border-border-subtle hover:border-primary p-3 rounded flex items-center justify-center gap-1 transition-colors text-text-dim hover:text-primary">
+<span class="material-symbols-outlined" data-icon="add" style="font-variation-settings: 'FILL' 0;">add</span>
+<span class="font-label-sm text-label-sm font-medium">Add Macro</span>
+</button>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+</body></html>

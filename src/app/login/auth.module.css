@@ -1,0 +1,229 @@
+/* Auth pages styles */
+.authPage {
+  min-height: 100vh;
+  background: var(--bg-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+}
+
+/* Animated grid background */
+.bgGrid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: 0.25;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+}
+
+/* Floating hex code decorations */
+.hexDecor {
+  position: absolute;
+  right: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-faint);
+  opacity: 0.35;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hexLine { white-space: nowrap; }
+
+/* Auth card */
+.authCard {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+  animation: fade-in 0.3s ease forwards;
+}
+
+/* Logo section */
+.authLogo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.logoIcon {
+  width: 44px;
+  height: 44px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+
+.logoText {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+}
+
+.brandName {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.brandSub {
+  font-size: 14px;
+  color: var(--text-faint);
+  font-weight: 400;
+}
+
+/* Titles */
+.authTitle {
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 6px;
+  color: var(--accent);
+}
+
+.authSubtitle {
+  font-size: 13px;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* Google button */
+.btnGoogle {
+  width: 100%;
+  background: var(--bg-raised);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 13.5px;
+  font-weight: 500;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background 0.12s, border-color 0.12s;
+  margin-bottom: 0;
+}
+.btnGoogle:hover:not(:disabled) {
+  background: var(--bg-raised-hover);
+  border-color: var(--text-faint);
+}
+.btnGoogle:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+  color: var(--text-faint);
+  font-size: 12px;
+}
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Password field */
+.passwordWrapper {
+  position: relative;
+}
+.passwordWrapper input {
+  padding-right: 38px;
+}
+.eyeBtn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+}
+.eyeBtn:hover { color: var(--text-dim); }
+
+/* Forgot link */
+.forgotLink {
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+}
+.forgotLink:hover { text-decoration: underline; }
+
+/* Security notice */
+.securityNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: rgba(77, 220, 198, 0.06);
+  border: 1px solid rgba(77, 220, 198, 0.2);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 11.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.securityNotice svg { color: var(--signal); flex-shrink: 0; margin-top: 1px; }
+
+/* Switch link */
+.switchLink {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  margin-top: 18px;
+}
+.switchLink a { color: var(--accent); }
+
+/* Version */
+.version {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 16px;
+  font-family: var(--font-mono);
+}
+
+@media (max-width: 480px) {
+  .authCard {
+    padding: 28px 20px;
+    border-radius: 12px;
+  }
+  .hexDecor { display: none; }
+}

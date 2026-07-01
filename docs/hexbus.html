@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modbus RTU · Consola Serie</title>
+<style>
+:root{
+  --bg-base:#14171A;
+  --bg-panel:#1C2024;
+  --bg-raised:#22262B;
+  --bg-raised-hover:#282D33;
+  --line:#2E3439;
+  --text-primary:#E8E6E1;
+  --text-dim:#8B9198;
+  --text-faint:#5B6167;
+  --accent:#F0A868;
+  --accent-dim:#8A6A45;
+  --signal:#5EEAD4;
+  --success:#5FBF77;
+  --error:#E2635A;
+  --warn:#F0A868;
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  --font-mono: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg-base);
+  color:var(--text-primary);
+  font-family:var(--font-ui);
+  font-size:14px;
+  min-height:100vh;
+}
+#app{display:flex;min-height:100vh;}
+
+/* ---------- Sidebar ---------- */
+#sidebar{
+  width:300px;
+  flex-shrink:0;
+  background:var(--bg-panel);
+  border-right:1px solid var(--line);
+  padding:20px 18px;
+  display:flex;
+  flex-direction:column;
+  gap:22px;
+}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand .dot{
+  width:9px;height:9px;border-radius:50%;
+  background:var(--text-faint);
+  box-shadow:0 0 0 3px rgba(240,168,104,0.08);
+  transition:background .2s, box-shadow .2s;
+}
+.brand .dot.on{background:var(--success);box-shadow:0 0 0 3px rgba(95,191,119,0.18);}
+.brand .dot.tx{background:var(--signal);box-shadow:0 0 0 4px rgba(94,234,212,0.25);}
+.brand h1{font-size:14px;font-weight:600;letter-spacing:.02em;margin:0;}
+.brand .sub{font-size:11px;color:var(--text-faint);margin-top:1px;}
+
+.panel-label{
+  font-size:10.5px;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+  color:var(--text-faint);
+  margin-bottom:9px;
+  font-weight:600;
+}
+.field{margin-bottom:11px;}
+.field label{display:block;font-size:11.5px;color:var(--text-dim);margin-bottom:4px;}
+select, input[type=text], input[type=number]{
+  width:100%;
+  background:var(--bg-raised);
+  border:1px solid var(--line);
+  color:var(--text-primary);
+  padding:7px 9px;
+  border-radius:6px;
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  outline:none;
+}
+select:focus, input:focus{border-color:var(--accent-dim);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+button{
+  font-family:var(--font-ui);
+  cursor:pointer;
+  border:none;
+  border-radius:6px;
+  font-weight:600;
+  transition:background .15s, transform .05s;
+}
+button:active{transform:translateY(1px);}
+button:disabled{opacity:.4;cursor:not-allowed;}
+
+.btn-primary{
+  background:var(--accent);
+  color:#1a1305;
+  padding:9px 12px;
+  width:100%;
+  font-size:13px;
+}
+.btn-primary:hover:not(:disabled){background:#f5b87a;}
+.btn-ghost{
+  background:var(--bg-raised);
+  color:var(--text-primary);
+  border:1px solid var(--line);
+  padding:8px 12px;
+  width:100%;
+  font-size:12.5px;
+}
+.btn-ghost:hover:not(:disabled){background:var(--bg-raised-hover);}
+.btn-danger{background:transparent;color:var(--error);border:1px solid rgba(226,99,90,.35);}
+.btn-danger:hover:not(:disabled){background:rgba(226,99,90,.08);}
+
+.status-line{
+  font-family:var(--font-mono);
+  font-size:11px;
+  color:var(--text-faint);
+  line-height:1.5;
+}
+.status-line b{color:var(--text-dim);font-weight:600;}
+
+#deviceList{display:flex;flex-direction:column;gap:5px;max-height:180px;overflow-y:auto;}
+.device-chip{
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--bg-raised);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:6px 9px;
+  font-family:var(--font-mono);
+  font-size:12px;
+  cursor:pointer;
+}
+.device-chip:hover{border-color:var(--accent-dim);}
+.device-chip span.id{color:var(--signal);}
+.device-chip span.time{color:var(--text-faint);font-size:10.5px;}
+.empty-hint{color:var(--text-faint);font-size:11.5px;font-style:normal;line-height:1.5;}
+
+/* ---------- Main ---------- */
+#main{flex:1;display:flex;flex-direction:column;min-width:0;}
+#tabs{
+  display:flex;gap:2px;
+  padding:14px 24px 0 24px;
+  border-bottom:1px solid var(--line);
+  background:var(--bg-base);
+  overflow-x:auto;
+}
+.tab{
+  background:transparent;color:var(--text-dim);
+  padding:9px 16px;font-size:13px;font-weight:500;
+  border-radius:8px 8px 0 0;
+  border:1px solid transparent;
+  white-space:nowrap;
+}
+.tab.active{
+  color:var(--text-primary);
+  background:var(--bg-panel);
+  border:1px solid var(--line);
+  border-bottom:1px solid var(--bg-panel);
+  margin-bottom:-1px;
+}
+.tab:hover:not(.active){color:var(--text-primary);}
+
+#content{flex:1;padding:24px;overflow-y:auto;}
+.view{display:none;}
+.view.active{display:block;}
+
+.card{
+  background:var(--bg-panel);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:18px 20px;
+  margin-bottom:16px;
+}
+.card h2{font-size:14px;margin:0 0 4px 0;font-weight:600;}
+.card p.desc{color:var(--text-dim);font-size:12.5px;margin:0 0 16px 0;line-height:1.5;}
+
+.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;}
+.form-grid .field{margin-bottom:0;}
+.result-box{
+  background:var(--bg-base);
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:14px;
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  min-height:44px;
+  color:var(--text-dim);
+}
+.result-box .reg-row{
+  display:flex;justify-content:space-between;
+  padding:3px 0;border-bottom:1px dashed var(--line);
+}
+.result-box .reg-row:last-child{border-bottom:none;}
+.result-box .reg-row .addr{color:var(--text-faint);}
+.result-box .reg-row .val{color:var(--text-primary);font-weight:600;}
+.result-box .reg-row .val.hi{color:var(--signal);}
+
+.actions-row{display:flex;gap:10px;align-items:center;}
+.actions-row button{width:auto;flex:0 0 auto;padding:9px 18px;}
+
+/* Macros */
+.macro-row {
+  display: grid;
+  grid-template-columns: 60px 140px 80px 1fr 100px 40px;
+  gap: 8px;
+  align-items: end;
+  background: var(--bg-raised);
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  border: 1px solid var(--line);
+}
+.macro-row .field { margin-bottom: 0; }
+.macro-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.15s;
+}
+.macro-card h3 { margin: 0 0 8px 0; font-size: 14px; font-weight: 600; }
+.macro-card .config-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: var(--bg-base);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+.macro-card .config-preview div {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.macro-card-actions { display: flex; gap: 8px; }
+
+/* Variaciones de Color de Macro */
+.macro-card.c-default { border-left: 4px solid var(--line); }
+.macro-card.c-accent { border-left: 4px solid var(--accent); background: linear-gradient(135deg, var(--bg-panel) 0%, rgba(240,168,104,0.03) 100%); }
+.macro-card.c-success { border-left: 4px solid var(--success); background: linear-gradient(135deg, var(--bg-panel) 0%, rgba(95,191,119,0.03) 100%); }
+.macro-card.c-signal { border-left: 4px solid var(--signal); background: linear-gradient(135deg, var(--bg-panel) 0%, rgba(94,234,212,0.03) 100%); }
+.macro-card.c-error { border-left: 4px solid var(--error); background: linear-gradient(135deg, var(--bg-panel) 0%, rgba(226,99,90,0.03) 100%); }
+
+/* scan */
+.scan-progress{
+  height:6px;background:var(--bg-base);border-radius:4px;overflow:hidden;
+  margin:12px 0;border:1px solid var(--line);
+}
+.scan-progress-bar{height:100%;background:var(--accent);width:0%;transition:width .1s;}
+.scan-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:8px;margin-top:14px;
+}
+.scan-hit{
+  background:var(--bg-raised);border:1px solid var(--success);
+  border-radius:8px;padding:10px 12px;
+  font-family:var(--font-mono);
+}
+.scan-hit .id{color:var(--success);font-weight:700;font-size:15px;}
+.scan-hit .meta{color:var(--text-faint);font-size:10.5px;margin-top:2px;}
+
+/* log */
+#logBox{
+  background:#0F1214;border:1px solid var(--line);border-radius:8px;
+  padding:12px 14px;font-family:var(--font-mono);font-size:12px;
+  height:420px;overflow-y:auto;line-height:1.65;
+}
+.log-line{white-space:pre-wrap;word-break:break-all;}
+.log-line .t{color:var(--text-faint);margin-right:8px;}
+.log-line.tx .dir{color:var(--signal);}
+.log-line.rx .dir{color:var(--accent);}
+.log-line.err .dir{color:var(--error);}
+.log-line.info .dir{color:var(--text-dim);}
+
+/* examples */
+.example-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.example-card{
+  background:var(--bg-raised);border:1px solid var(--line);
+  border-radius:10px;padding:16px 18px;cursor:pointer;
+  transition:border-color .15s, background .15s;
+}
+.example-card:hover{border-color:var(--accent-dim);background:var(--bg-raised-hover);}
+.example-card .tag{
+  display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--accent);background:rgba(240,168,104,.1);
+  padding:2px 8px;border-radius:20px;margin-bottom:8px;font-weight:700;
+}
+.example-card h3{font-size:13.5px;margin:0 0 6px 0;}
+.example-card p{font-size:12px;color:var(--text-dim);margin:0 0 10px 0;line-height:1.5;}
+.example-card code{
+  display:block;background:var(--bg-base);border-radius:6px;padding:8px 10px;
+  font-family:var(--font-mono);font-size:11px;color:var(--text-dim);
+}
+
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--font-mono);font-size:11px;
+  padding:3px 9px;border-radius:20px;
+  border:1px solid var(--line);color:var(--text-dim);
+}
+.badge.ok{border-color:rgba(95,191,119,.4);color:var(--success);}
+.badge.bad{border-color:rgba(226,99,90,.4);color:var(--error);}
+
+.notice{
+  background:rgba(240,168,104,.08);border:1px solid rgba(240,168,104,.25);
+  border-radius:8px;padding:12px 14px;font-size:12px;color:var(--text-dim);line-height:1.55;
+  margin-bottom:16px;
+}
+.notice b{color:var(--accent);}
+
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+@media (max-width:820px){
+  #app{flex-direction:column;}
+  #sidebar{width:100%;border-right:none;border-bottom:1px solid var(--line);}
+  .form-grid{grid-template-columns:1fr 1fr;}
+  .example-grid{grid-template-columns:1fr;}
+  .macro-row { grid-template-columns: 1fr 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="sidebar">
+    <div class="brand">
+      <div class="dot" id="connDot"></div>
+      <div>
+        <h1>Modbus RTU Console</h1>
+        <div class="sub">Control por USB · RS485</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-label">Conexión serie</div>
+      <div class="field">
+        <label>Puerto USB</label>
+        <button class="btn-ghost" id="btnRequestPort" style="text-align:left;">＋ Seleccionar conversor</button>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Baudios</label>
+          <select id="baudRate">
+            <option>1200</option><option>2400</option><option>4800</option>
+            <option selected>9600</option><option>19200</option><option>38400</option>
+            <option>57600</option><option>115200</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Paridad</label>
+          <select id="parity">
+            <option value="none" selected>Ninguna</option>
+            <option value="even">Par</option>
+            <option value="odd">Impar</option>
+          </select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Bits de datos</label>
+          <select id="dataBits"><option>8</option><option>7</option></select>
+        </div>
+        <div class="field">
+          <label>Bits de parada</label>
+          <select id="stopBits"><option>1</option><option>2</option></select>
+        </div>
+      </div>
+      <button class="btn-primary" id="btnConnect" disabled>Conectar</button>
+      <div class="status-line" id="connStatus" style="margin-top:9px;">Sin puerto seleccionado.</div>
+    </div>
+
+    <div>
+      <div class="panel-label">Dispositivos detectados</div>
+      <div id="deviceList">
+        <div class="empty-hint">Aún no se ha escaneado el bus. Ve a la pestaña «Escanear bus».</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="main">
+    <div id="tabs">
+      <button class="tab active" data-view="viewRegisters">Registros</button>
+      <button class="tab" data-view="viewMacros">Macros / Secuencias</button>
+      <button class="tab" data-view="viewScan">Escanear bus</button>
+      <button class="tab" data-view="viewLog">Consola / Log</button>
+      <button class="tab" data-view="viewExamples">Ejemplos</button>
+    </div>
+
+    <div id="content">
+
+      <div class="view active" id="viewRegisters">
+        <div class="notice">
+          Esta app usa la <b>Web Serial API</b>, disponible en Chrome / Edge de escritorio. Si la ejecutas dentro
+          de una vista previa incrustada (iframe), el navegador puede bloquear el acceso USB por política de
+          permisos. Descarga el archivo <code>.html</code> y ábrelo directamente en el navegador para un acceso
+          fiable al puerto serie.
+        </div>
+
+        <div class="card">
+          <h2>Leer registros</h2>
+          <p class="desc">Lectura de registros Modbus (Holding / Input) desde un esclavo del bus RS485.</p>
+          <div class="form-grid">
+            <div class="field">
+              <label>ID esclavo</label>
+              <input type="number" id="readSlaveId" value="1" min="1" max="247">
+            </div>
+            <div class="field">
+              <label>Función</label>
+              <select id="readFunction">
+                <option value="3">03 · Holding Registers</option>
+                <option value="4">04 · Input Registers</option>
+                <option value="1">01 · Read Coils</option>
+                <option value="2">02 · Read Discrete Inputs</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Dirección inicial</label>
+              <input type="number" id="readAddress" value="0" min="0" max="65535">
+            </div>
+            <div class="field">
+              <label>Cantidad</label>
+              <input type="number" id="readQty" value="2" min="1" max="125">
+            </div>
+          </div>
+          <div class="actions-row">
+            <button class="btn-primary" id="btnRead" style="flex:0 0 auto;" disabled>Leer</button>
+            <span class="badge" id="readBadge">esperando</span>
+          </div>
+          <div class="result-box" id="readResult" style="margin-top:14px;">Sin datos todavía.</div>
+        </div>
+
+        <div class="card">
+          <h2>Escribir registro</h2>
+          <p class="desc">Escritura de un valor único (FC06) o de varios registros consecutivos (FC16), separados por comas.</p>
+          <div class="form-grid">
+            <div class="field">
+              <label>ID esclavo</label>
+              <input type="number" id="writeSlaveId" value="1" min="1" max="247">
+            </div>
+            <div class="field">
+              <label>Función</label>
+              <select id="writeFunction">
+                <option value="6">06 · Write Single Register</option>
+                <option value="16">16 · Write Multiple Registers</option>
+                <option value="5">05 · Write Single Coil</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Dirección</label>
+              <input type="number" id="writeAddress" value="0" min="0" max="65535">
+            </div>
+            <div class="field">
+              <label>Valor(es)</label>
+              <input type="text" id="writeValues" value="100" placeholder="ej: 100  ó  100,200,300">
+            </div>
+          </div>
+          <div class="actions-row">
+            <button class="btn-primary" id="btnWrite" style="flex:0 0 auto;" disabled>Escribir</button>
+            <span class="badge" id="writeBadge">esperando</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="view" id="viewMacros">
+        <div class="card">
+          <h2 id="macroBuilderTitle">Crear Botón de Secuencia (Macro)</h2>
+          <p class="desc">Define un comando único o encadena varias tramas consecutivas con retardos de tiempo. Elige un color visual para identificar rápidamente su función en el bus.</p>
+          
+          <div class="row2" style="max-width: 650px; margin-bottom: 16px;">
+            <div class="field">
+              <label>Nombre del Botón / Rutina</label>
+              <input type="text" id="newMacroName" placeholder="Ej: Apertura Persiana">
+            </div>
+            <div class="field">
+              <label>Color distintivo de tarjeta</label>
+              <select id="newMacroColor">
+                <option value="default">Gris Neutro (Línea)</option>
+                <option value="accent">Naranja (Foco / Canales)</option>
+                <option value="success">Verde (OK / Activo)</option>
+                <option value="signal">Azul (Comunicación)</option>
+                <option value="error">Rojo (Alarmas / Parada)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="macroBuilderRows"></div>
+
+          <div class="actions-row" style="margin-top: 14px;">
+            <button class="btn-ghost" id="btnAddMacroRow">＋ Añadir comando a la cola</button>
+            <button class="btn-primary" id="btnSaveMacro">Guardar Secuencia</button>
+            <button class="btn-ghost btn-danger" id="btnCancelEdit" style="display:none;">Cancelar Edición</button>
+            <span class="badge" id="macroSaveBadge" style="display:none;">Guardado ✓</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Botones de Ejecución Rápida</h2>
+          <div id="macroList" class="example-grid">
+            <div class="empty-hint">No hay secuencias guardadas. Crea una arriba.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="view" id="viewScan">
+        <div class="card">
+          <h2>Escanear bus Modbus</h2>
+          <p class="desc">Recorre un rango de IDs enviando una lectura corta y registra qué direcciones responden. Útil para descubrir dispositivos desconocidos conectados al bus.</p>
+          <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr;">
+            <div class="field"><label>ID inicial</label><input type="number" id="scanFrom" value="1" min="1" max="247"></div>
+            <div class="field"><label>ID final</label><input type="number" id="scanTo" value="32" min="1" max="247"></div>
+            <div class="field"><label>Timeout por ID (ms)</label><input type="number" id="scanTimeout" value="150" min="30" max="2000"></div>
+          </div>
+          <div class="actions-row">
+            <button class="btn-primary" id="btnScan" style="flex:0 0 auto;" disabled>Iniciar escaneo</button>
+            <button class="btn-ghost" id="btnStopScan" style="flex:0 0 auto;display:none;">Detener</button>
+            <span class="badge" id="scanBadge">inactivo</span>
+          </div>
+          <div class="scan-progress"><div class="scan-progress-bar" id="scanProgressBar"></div></div>
+          <div class="scan-grid" id="scanResults"></div>
+        </div>
+      </div>
+
+      <div class="view" id="viewLog">
+        <div class="card">
+          <h2>Consola de tramas</h2>
+          <p class="desc">Registro en crudo (hex) de todas las tramas Modbus RTU enviadas y recibidas, con CRC.</p>
+          <div class="actions-row" style="margin-bottom:12px;">
+            <button class="btn-ghost" id="btnClearLog" style="flex:0 0 auto;">Limpiar log</button>
+          </div>
+          <div id="logBox"></div>
+        </div>
+      </div>
+
+      <div class="view" id="viewExamples">
+        <div class="card">
+          <h2>Ejemplos de uso</h2>
+          <p class="desc">Casos típicos de instalación. Pulsa una tarjeta para cargar los parámetros en la pestaña «Registros».</p>
+          <div class="example-grid">
+
+            <div class="example-card" data-ex="thermo">
+              <span class="tag">Domótica / HVAC</span>
+              <h3>Leer temperatura de un termostato</h3>
+              <p>Lectura típica de un registro Holding con la temperatura ambiente codificada en décimas de grado (ej. 235 = 23,5 °C).</p>
+              <code>ID 1 · FC03 · Addr 0 · Qty 1</code>
+            </div>
+
+            <div class="example-card" data-ex="setpoint">
+              <span class="tag">Domótica / HVAC</span>
+              <h3>Cambiar el setpoint de un controlador</h3>
+              <p>Escritura de un único registro para fijar la temperatura de consigna (ej. escribir 220 para 22,0 °C).</p>
+              <code>ID 1 · FC06 · Addr 1 · Valor 220</code>
+            </div>
+
+            <div class="example-card" data-ex="meter">
+              <span class="tag">Medida eléctrica</span>
+              <h3>Leer un medidor de energía (tipo SDM120)</h3>
+              <p>Los medidores de energía suelen exponer valores en Input Registers como float de 32 bits repartido en 2 registros consecutivos.</p>
+              <code>ID 1 · FC04 · Addr 0 · Qty 2</code>
+            </div>
+
+            <div class="example-card" data-ex="coil">
+              <span class="tag">Salidas digitales</span>
+              <h3>Activar un relé / salida digital</h3>
+              <p>Escritura de una bobina (coil) única para activar una salida, típico en módulos de relés o persianas.</p>
+              <code>ID 1 · FC05 · Addr 0 · Valor 1 (ON)</code>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ Modbus RTU core ============ */
+function crc16(buffer){
+  let crc = 0xFFFF;
+  for (let pos = 0; pos < buffer.length; pos++){
+    crc ^= buffer[pos];
+    for (let i = 0; i < 8; i++){
+      if (crc & 0x0001){ crc >>= 1; crc ^= 0xA001; }
+      else { crc >>= 1; }
+    }
+  }
+  return crc;
+}
+function appendCrc(bytes){
+  const crc = crc16(bytes);
+  return new Uint8Array([...bytes, crc & 0xFF, (crc >> 8) & 0xFF]);
+}
+function toHex(bytes){
+  return Array.from(bytes).map(b => b.toString(16).padStart(2,'0')).join(' ').toUpperCase();
+}
+
+function buildReadFrame(slaveId, fnCode, address, qty){
+  const b = new Uint8Array(6);
+  b[0] = slaveId; b[1] = fnCode;
+  b[2] = (address >> 8) & 0xFF; b[3] = address & 0xFF;
+  b[4] = (qty >> 8) & 0xFF; b[5] = qty & 0xFF;
+  return appendCrc(b);
+}
+function buildWriteSingleFrame(slaveId, fnCode, address, value){
+  const b = new Uint8Array(6);
+  b[0] = slaveId; b[1] = fnCode;
+  b[2] = (address >> 8) & 0xFF; b[3] = address & 0xFF;
+  b[4] = (value >> 8) & 0xFF; b[5] = value & 0xFF;
+  return appendCrc(b);
+}
+function buildWriteMultipleFrame(slaveId, address, values){
+  const qty = values.length;
+  const byteCount = qty * 2;
+  const b = new Uint8Array(7 + byteCount);
+  b[0] = slaveId; b[1] = 16;
+  b[2] = (address >> 8) & 0xFF; b[3] = address & 0xFF;
+  b[4] = (qty >> 8) & 0xFF; b[5] = qty & 0xFF;
+  b[6] = byteCount;
+  values.forEach((v, i) => {
+    b[7 + i*2] = (v >> 8) & 0xFF;
+    b[8 + i*2] = v & 0xFF;
+  });
+  return appendCrc(b);
+}
+
+/* ============ Serial transport ============ */
+let port = null, reader = null, writer = null, keepReading = false;
+let rxBuffer = [];
+let pendingResolve = null;
+let scanCancelled = false;
+
+function log(dir, text){
+  const box = document.getElementById('logBox');
+  const line = document.createElement('div');
+  line.className = 'log-line ' + dir;
+  const time = new Date().toLocaleTimeString('es-ES', {hour12:false}) + '.' + String(Date.now()%1000).padStart(3,'0');
+  const label = {tx:'TX →', rx:'← RX', err:'ERR ', info:'· '}[dir] || '';
+  line.innerHTML = `<span class="t">${time}</span><span class="dir">${label}</span> ${text}`;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+async function requestPort(){
+  try{
+    port = await navigator.serial.requestPort();
+    document.getElementById('connStatus').textContent = 'Puerto seleccionado. Configura los parámetros y pulsa Conectar.';
+    document.getElementById('btnConnect').disabled = false;
+  }catch(e){
+    log('err', 'Selección de puerto cancelada o no disponible: ' + e.message);
+  }
+}
+
+async function connect(){
+  if (!port) return;
+  const baudRate = parseInt(document.getElementById('baudRate').value, 10);
+  const parity = document.getElementById('parity').value;
+  const dataBits = parseInt(document.getElementById('dataBits').value, 10);
+  const stopBits = parseInt(document.getElementById('stopBits').value, 10);
+  try{
+    await port.open({ baudRate, parity, dataBits, stopBits });
+    writer = port.writable.getWriter();
+    keepReading = true;
+    readLoop();
+    setConnected(true);
+    log('info', `Conectado a ${baudRate} baudios, ${dataBits}${parity[0].toUpperCase()}${stopBits}.`);
+  }catch(e){
+    log('err', 'No se pudo abrir el puerto: ' + e.message);
+  }
+}
+
+async function disconnect(){
+  keepReading = false;
+  try{ if (reader){ await reader.cancel(); } }catch(e){}
+  try{ if (writer){ writer.releaseLock(); } }catch(e){}
+  try{ if (port){ await port.close(); } }catch(e){}
+  setConnected(false);
+  log('info', 'Desconectado.');
+}
+
+async function readLoop(){
+  while (port.readable && keepReading){
+    reader = port.readable.getReader();
+    try{
+      while (true){
+        const { value, done } = await reader.read();
+        if (done) break;
+        if (value){
+          rxBuffer.push(...value);
+          flashDot('rx');
+          if (pendingResolve){
+            clearTimeout(pendingResolve.timer);
+            pendingResolve.timer = setTimeout(() => resolvePending(), 25);
+          }
+        }
+      }
+    }catch(e){
+      log('err', 'Error de lectura: ' + e.message);
+    }finally{
+      reader.releaseLock();
+    }
+  }
+}
+
+function resolvePending(){
+  if (!pendingResolve) return;
+  const frame = new Uint8Array(rxBuffer);
+  rxBuffer = [];
+  const r = pendingResolve;
+  pendingResolve = null;
+  r.resolve(frame);
+}
+
+function flashDot(kind){
+  const dot = document.getElementById('connDot');
+  if (kind === 'tx') dot.classList.add('tx');
+  setTimeout(() => dot.classList.remove('tx'), 120);
+}
+
+async function sendAndReceive(frameBytes, timeoutMs = 400){
+  if (!writer) throw new Error('Puerto no conectado');
+  rxBuffer = [];
+  log('tx', toHex(frameBytes));
+  flashDot('tx');
+  await writer.write(frameBytes);
+  return new Promise((resolve) => {
+    pendingResolve = { resolve, timer: null };
+    pendingResolve.timer = setTimeout(() => {
+      if (pendingResolve){
+        pendingResolve = null;
+        resolve(null);
+      }
+    }, timeoutMs);
+  });
+}
+
+function setConnected(state){
+  document.getElementById('connDot').classList.toggle('on', state);
+  document.getElementById('btnConnect').textContent = state ? 'Desconectar' : 'Conectar';
+  document.getElementById('btnConnect').onclick = state ? disconnect : connect;
+  document.getElementById('connStatus').textContent = state ? 'Conectado.' : 'Desconectado.';
+  
+  document.getElementById('btnRead').disabled = !state;
+  document.getElementById('btnWrite').disabled = !state;
+  document.getElementById('btnScan').disabled = !state;
+  document.querySelectorAll('.btn-run-macro').forEach(b => b.disabled = !state);
+}
+
+/* ============ Macros Management ============ */
+let savedMacros = [];
+let editingIndex = null;
+
+function initMacros() {
+  const stored = localStorage.getItem('modbus_macros');
+  if (stored) {
+    try {
+      savedMacros = JSON.parse(stored);
+    } catch(e) { savedMacros = []; }
+  } else {
+    // Estructura muestra inicial por defecto
+    savedMacros = [{
+      name: "Homa Smart Shutter 1CH (Calibración corta)",
+      color: "accent",
+      actions: [
+        { id: 1, fn: 6, addr: 10, val: "100", delay: 400 },
+        { id: 1, fn: 5, addr: 0, val: "1", delay: 1500 },
+        { id: 1, fn: 5, addr: 0, val: "0", delay: 0 }
+      ]
+    }];
+  }
+  renderMacroList();
+  resetMacroBuilder();
+}
+
+function addMacroRow(data = null) {
+  const container = document.getElementById('macroBuilderRows');
+  const row = document.createElement('div');
+  row.className = 'macro-row';
+  
+  const idVal = data ? data.id : 1;
+  const fnVal = data ? data.fn : 6;
+  const addrVal = data ? data.addr : 0;
+  const valVal = data ? data.val : "100";
+  const delayVal = data ? data.delay : 500;
+
+  row.innerHTML = `
+    <div class="field"><label>ID</label><input type="number" class="m-id" value="${idVal}" min="1" max="247"></div>
+    <div class="field"><label>Función</label>
+      <select class="m-fn">
+        <option value="6" ${fnVal == 6 ? 'selected':''}>06 Write Single</option>
+        <option value="16" ${fnVal == 16 ? 'selected':''}>16 Write Multi</option>
+        <option value="5" ${fnVal == 5 ? 'selected':''}>05 Write Coil</option>
+        <option value="3" ${fnVal == 3 ? 'selected':''}>03 Read Holding</option>
+        <option value="4" ${fnVal == 4 ? 'selected':''}>04 Read Inputs</option>
+      </select>
+    </div>
+    <div class="field"><label>Dirección</label><input type="number" class="m-addr" value="${addrVal}" min="0"></div>
+    <div class="field"><label>Valor / Cantidad</label><input type="text" class="m-val" value="${valVal}" placeholder="Ej: 100 o 1,2,3"></div>
+    <div class="field"><label>Pausa post (ms)</label><input type="number" class="m-delay" value="${delayVal}" min="0"></div>
+    <button class="btn-danger btn-remove-row" style="margin-bottom:2px; padding:6px 10px;" title="Eliminar comando">X</button>
+  `;
+  
+  row.querySelector('.btn-remove-row').addEventListener('click', () => {
+    if (container.children.length > 1) row.remove();
+  });
+  
+  container.appendChild(row);
+}
+
+function resetMacroBuilder() {
+  editingIndex = null;
+  document.getElementById('macroBuilderTitle').textContent = "Crear Botón de Secuencia (Macro)";
+  document.getElementById('btnSaveMacro').textContent = "Guardar Secuencia";
+  document.getElementById('btnCancelEdit').style.display = "none";
+  document.getElementById('newMacroName').value = "";
+  document.getElementById('newMacroColor').value = "default";
+  document.getElementById('macroBuilderRows').innerHTML = "";
+  addMacroRow();
+}
+
+function saveMacro() {
+  const nameInput = document.getElementById('newMacroName');
+  const name = nameInput.value.trim() || `Secuencia ${savedMacros.length + 1}`;
+  const color = document.getElementById('newMacroColor').value;
+  
+  const actions = [];
+  document.querySelectorAll('.macro-row').forEach(row => {
+    actions.push({
+      id: parseInt(row.querySelector('.m-id').value, 10),
+      fn: parseInt(row.querySelector('.m-fn').value, 10),
+      addr: parseInt(row.querySelector('.m-addr').value, 10),
+      val: row.querySelector('.m-val').value.trim(),
+      delay: parseInt(row.querySelector('.m-delay').value, 10) || 0
+    });
+  });
+
+  const macroObject = { name, color, actions };
+
+  if (editingIndex !== null) {
+    savedMacros[editingIndex] = macroObject;
+  } else {
+    savedMacros.push(macroObject);
+  }
+
+  localStorage.setItem('modbus_macros', JSON.stringify(savedMacros));
+  resetMacroBuilder();
+  renderMacroList();
+  
+  const badge = document.getElementById('macroSaveBadge');
+  badge.style.display = 'inline-flex';
+  badge.className = 'badge ok';
+  setTimeout(() => badge.style.display = 'none', 2000);
+}
+
+function renderMacroList() {
+  const container = document.getElementById('macroList');
+  container.innerHTML = '';
+  
+  if (savedMacros.length === 0) {
+    container.innerHTML = '<div class="empty-hint">No hay secuencias guardadas. Crea una arriba.</div>';
+    return;
+  }
+
+  savedMacros.forEach((macro, index) => {
+    const card = document.createElement('div');
+    const colorClass = macro.color ? `c-${macro.color}` : 'c-default';
+    card.className = `macro-card ${colorClass}`;
+    
+    // Construcción visual de la configuración expuesta en el botón
+    let configPreviewRows = '';
+    macro.actions.forEach((act, i) => {
+      const fnMap = {3:'FC03', 4:'FC04', 5:'FC05', 6:'FC06', 16:'FC16'};
+      const currentFn = fnMap[act.fn] || `FC${act.fn}`;
+      const delayInfo = act.delay > 0 ? ` ⏱ ${act.delay}ms` : '';
+      configPreviewRows += `<div>[${i+1}] ID ${act.id} · ${currentFn} · Dir: ${act.addr} · Val: ${act.val}${delayInfo}</div>`;
+    });
+    
+    card.innerHTML = `
+      <div>
+        <h3>${macro.name}</h3>
+        <div class="config-preview">
+          ${configPreviewRows}
+        </div>
+      </div>
+      <div class="macro-card-actions">
+        <button class="btn-primary btn-run-macro" style="flex:1;" data-index="${index}" ${port ? '' : 'disabled'}>Ejecutar</button>
+        <button class="btn-ghost btn-edit-macro" data-index="${index}" style="padding: 0 10px;" title="Editar">✏️</button>
+        <button class="btn-danger btn-delete-macro" data-index="${index}" style="padding: 0 10px;" title="Borrar">🗑</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  // Eventos de ejecución rápida
+  document.querySelectorAll('.btn-run-macro').forEach(btn => {
+    btn.addEventListener('click', (e) => executeMacro(e.target.dataset.index, e.target));
+  });
+
+  // Evento de carga para edición
+  document.querySelectorAll('.btn-edit-macro').forEach(btn => {
+    btn.addEventListener('click', (e) => loadMacroIntoBuilder(e.target.dataset.index));
+  });
+
+  // Evento de eliminación
+  document.querySelectorAll('.btn-delete-macro').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      if(confirm("¿Eliminar esta secuencia permanentemente?")) {
+        savedMacros.splice(e.target.dataset.index, 1);
+        localStorage.setItem('modbus_macros', JSON.stringify(savedMacros));
+        renderMacroList();
+        if(editingIndex == e.target.dataset.index) resetMacroBuilder();
+      }
+    });
+  });
+}
+
+function loadMacroIntoBuilder(index) {
+  editingIndex = parseInt(index, 10);
+  const macro = savedMacros[editingIndex];
+  
+  document.getElementById('macroBuilderTitle').textContent = `Editando: ${macro.name}`;
+  document.getElementById('btnSaveMacro').textContent = "Actualizar Secuencia";
+  document.getElementById('btnCancelEdit').style.display = "inline-block";
+  
+  document.getElementById('newMacroName').value = macro.name;
+  document.getElementById('newMacroColor').value = macro.color || "default";
+  
+  const container = document.getElementById('macroBuilderRows');
+  container.innerHTML = "";
+  
+  macro.actions.forEach(act => {
+    addMacroRow(act);
+  });
+  
+  document.getElementById('macroBuilderTitle').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function executeMacro(index, btnElement) {
+  if (!port) return;
+  const macro = savedMacros[index];
+  const origText = btnElement.textContent;
+  
+  btnElement.textContent = 'Enviando...';
+  btnElement.disabled = true;
+
+  try {
+    for (let i = 0; i < macro.actions.length; i++) {
+      const act = macro.actions[i];
+      const fn = parseInt(act.fn, 10);
+      const rawValues = String(act.val).split(',').map(v => parseInt(v.trim(), 10)).filter(v => !isNaN(v));
+
+      let frame;
+      if (fn === 16) {
+        frame = buildWriteMultipleFrame(act.id, act.addr, rawValues);
+      } else if (fn === 6) {
+        frame = buildWriteSingleFrame(act.id, fn, act.addr, rawValues[0] || 0);
+      } else if (fn === 5) {
+        frame = buildWriteSingleFrame(act.id, fn, act.addr, rawValues[0] ? 0xFF00 : 0x0000);
+      } else if (fn === 3 || fn === 4 || fn === 1 || fn === 2) {
+        frame = buildReadFrame(act.id, fn, act.addr, rawValues[0] || 1);
+      }
+
+      if (frame) {
+        await sendAndReceive(frame);
+      }
+
+      if (act.delay > 0 && i < macro.actions.length - 1) {
+        await new Promise(r => setTimeout(r, act.delay));
+      }
+    }
+  } catch (e) {
+    log('err', 'Error ejecutando secuencia: ' + e.message);
+  } finally {
+    btnElement.textContent = origText;
+    btnElement.disabled = false;
+  }
+}
+
+/* ============ UI wiring ============ */
+document.addEventListener('DOMContentLoaded', () => {
+  if (!('serial' in navigator)){
+    document.getElementById('connStatus').innerHTML =
+      '<span style="color:var(--error)">Web Serial API no disponible en este navegador. Usa Chrome o Edge de escritorio.</span>';
+  }
+
+  document.getElementById('btnRequestPort').addEventListener('click', requestPort);
+  document.getElementById('btnConnect').addEventListener('click', connect);
+
+  // Navegación por pestañas
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.view).classList.add('active');
+    });
+  });
+
+  document.getElementById('btnClearLog').addEventListener('click', () => {
+    document.getElementById('logBox').innerHTML = '';
+  });
+
+  document.getElementById('btnRead').addEventListener('click', doRead);
+  document.getElementById('btnWrite').addEventListener('click', doWrite);
+  document.getElementById('btnScan').addEventListener('click', doScan);
+  document.getElementById('btnStopScan').addEventListener('click', () => { scanCancelled = true; });
+
+  // Wiring sección Macros
+  document.getElementById('btnAddMacroRow').addEventListener('click', () => addMacroRow());
+  document.getElementById('btnSaveMacro').addEventListener('click', saveMacro);
+  document.getElementById('btnCancelEdit').addEventListener('click', resetMacroBuilder);
+  
+  initMacros();
+
+  document.querySelectorAll('.example-card').forEach(card => {
+    card.addEventListener('click', () => loadExample(card.dataset.ex));
+  });
+});
+
+async function doRead(){
+  const slaveId = parseInt(document.getElementById('readSlaveId').value, 10);
+  const fn = parseInt(document.getElementById('readFunction').value, 10);
+  const address = parseInt(document.getElementById('readAddress').value, 10);
+  const qty = parseInt(document.getElementById('readQty').value, 10);
+  const badge = document.getElementById('readBadge');
+  const resultBox = document.getElementById('readResult');
+  badge.textContent = 'leyendo…'; badge.className = 'badge';
+
+  const frame = buildReadFrame(slaveId, fn, address, qty);
+  const resp = await sendAndReceive(frame);
+
+  if (!resp || resp.length < 3){
+    badge.textContent = 'sin respuesta'; badge.className = 'badge bad';
+    resultBox.textContent = 'Timeout: el dispositivo no respondió.';
+    return;
+  }
+  if (resp[1] & 0x80){
+    badge.textContent = 'error modbus 0x' + resp[2].toString(16); badge.className = 'badge bad';
+    resultBox.textContent = 'Excepción Modbus (código ' + resp[2] + ').';
+    return;
+  }
+  badge.textContent = 'ok'; badge.className = 'badge ok';
+
+  const byteCount = resp[2];
+  let html = '';
+  if (fn === 1 || fn === 2){
+    for (let i = 0; i < qty; i++){
+      const byte = resp[3 + Math.floor(i/8)];
+      const bit = (byte >> (i % 8)) & 1;
+      html += `<div class="reg-row"><span class="addr">bit[${address+i}]</span><span class="val ${bit?'hi':''}">${bit}</span></div>`;
+    }
+  } else {
+    for (let i = 0; i < byteCount/2; i++){
+      const hi = resp[3 + i*2], lo = resp[4 + i*2];
+      const val = (hi << 8) | lo;
+      const signed = val > 32767 ? val - 65536 : val;
+      html += `<div class="reg-row"><span class="addr">reg[${address+i}]</span><span class="val">${val} <span style="color:var(--text-faint)">(0x${val.toString(16).padStart(4,'0')} · int16: ${signed})</span></span></div>`;
+    }
+  }
+  resultBox.innerHTML = html;
+}
+
+async function doWrite(){
+  const slaveId = parseInt(document.getElementById('writeSlaveId').value, 10);
+  const fn = parseInt(document.getElementById('writeFunction').value, 10);
+  const address = parseInt(document.getElementById('writeAddress').value, 10);
+  const rawValues = document.getElementById('writeValues').value.split(',').map(v => parseInt(v.trim(), 10)).filter(v => !isNaN(v));
+  const badge = document.getElementById('writeBadge');
+  badge.textContent = 'escribiendo…'; badge.className = 'badge';
+
+  let frame;
+  if (fn === 16){
+    frame = buildWriteMultipleFrame(slaveId, address, rawValues);
+  } else {
+    frame = buildWriteSingleFrame(slaveId, fn, address, fn === 5 ? (rawValues[0] ? 0xFF00 : 0x0000) : rawValues[0]);
+  }
+  const resp = await sendAndReceive(frame);
+
+  if (!resp || resp.length < 3){
+    badge.textContent = 'sin respuesta'; badge.className = 'badge bad'; return;
+  }
+  if (resp[1] & 0x80){
+    badge.textContent = 'error 0x' + resp[2].toString(16); badge.className = 'badge bad'; return;
+  }
+  badge.textContent = 'escrito ✓'; badge.className = 'badge ok';
+}
+
+async function doScan(){
+  scanCancelled = false;
+  const from = parseInt(document.getElementById('scanFrom').value, 10);
+  const to = parseInt(document.getElementById('scanTo').value, 10);
+  const timeout = parseInt(document.getElementById('scanTimeout').value, 10);
+  const resultsEl = document.getElementById('scanResults');
+  const bar = document.getElementById('scanProgressBar');
+  const badge = document.getElementById('scanBadge');
+  const deviceList = document.getElementById('deviceList');
+  
+  resultsEl.innerHTML = '';
+  deviceList.innerHTML = '';
+  document.getElementById('btnScan').style.display = 'none';
+  document.getElementById('btnStopScan').style.display = 'inline-block';
+  badge.textContent = 'escaneando…'; badge.className = 'badge';
+
+  const total = to - from + 1;
+  let found = 0;
+
+  for (let id = from; id <= to; id++){
+    if (scanCancelled) break;
+    bar.style.width = Math.round(((id - from + 1) / total) * 100) + '%';
+    const frame = buildReadFrame(id, 3, 0, 1);
+    const resp = await sendAndReceive(frame, timeout);
+    if (resp && resp.length >= 3 && resp[0] === id){
+      found++;
+      const now = new Date().toLocaleTimeString('es-ES', {hour12:false});
+      const hit = document.createElement('div');
+      hit.className = 'scan-hit';
+      hit.innerHTML = `<div class="id">ID ${id}</div><div class="meta">FC03 responde · ${now}</div>`;
+      resultsEl.appendChild(hit);
+
+      const chip = document.createElement('div');
+      chip.className = 'device-chip';
+      chip.innerHTML = `<span class="id">ID ${id}</span><span class="time">${now}</span>`;
+      chip.addEventListener('click', () => {
+        document.getElementById('readSlaveId').value = id;
+        document.getElementById('writeSlaveId').value = id;
+        document.querySelector('.tab[data-view="viewRegisters"]').click();
+      });
+      deviceList.appendChild(chip);
+    }
+  }
+  if (deviceList.children.length === 0){
+    deviceList.innerHTML = '<div class="empty-hint">Ningún dispositivo respondió en el rango.</div>';
+  }
+  badge.textContent = scanCancelled ? `detenido · ${found} encontrados` : `completado · ${found} encontrados`;
+  badge.className = 'badge ' + (found > 0 ? 'ok' : '');
+  document.getElementById('btnScan').style.display = 'inline-block';
+  document.getElementById('btnStopScan').style.display = 'none';
+}
+
+function loadExample(key){
+  const presets = {
+    thermo:  { view:'viewRegisters', read:{slaveId:1, fn:3, addr:0, qty:1} },
+    setpoint:{ view:'viewRegisters', write:{slaveId:1, fn:6, addr:1, values:'220'} },
+    meter:   { view:'viewRegisters', read:{slaveId:1, fn:4, addr:0, qty:2} },
+    coil:    { view:'viewRegisters', write:{slaveId:1, fn:5, addr:0, values:'1'} }
+  };
+  const p = presets[key];
+  if (!p) return;
+  if (p.read){
+    document.getElementById('readSlaveId').value = p.read.slaveId;
+    document.getElementById('readFunction').value = p.read.fn;
+    document.getElementById('readAddress').value = p.read.addr;
+    document.getElementById('readQty').value = p.read.qty;
+  }
+  if (p.write){
+    document.getElementById('writeSlaveId').value = p.write.slaveId;
+    document.getElementById('writeFunction').value = p.write.fn;
+    document.getElementById('writeAddress').value = p.write.addr;
+    document.getElementById('writeValues').value = p.write.values;
+  }
+  document.querySelector(`.tab[data-view="${p.view}"]`).click();
+}
+</script>
+</body>
+</html>

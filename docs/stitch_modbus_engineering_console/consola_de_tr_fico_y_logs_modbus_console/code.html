@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Advanced Traffic Console and Logging</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "text-dim": "#8B9198",
+                        "on-secondary": "#003730",
+                        "on-primary-fixed": "#2e1500",
+                        "surface-variant": "#31353c",
+                        "text-primary": "#E6EDF3",
+                        "on-tertiary-container": "#005425",
+                        "on-error": "#690005",
+                        "tertiary-container": "#6bcb82",
+                        "on-primary-fixed-variant": "#6c3a01",
+                        "on-tertiary": "#003917",
+                        "inverse-primary": "#895119",
+                        "on-surface-variant": "#d7c3b5",
+                        "surface-dim": "#10141a",
+                        "on-primary-container": "#6e3c02",
+                        "outline-variant": "#524439",
+                        "on-background": "#dfe2eb",
+                        "secondary-fixed-dim": "#4ddcc6",
+                        "on-tertiary-fixed": "#00210b",
+                        "inverse-on-surface": "#2d3137",
+                        "tertiary": "#86e89b",
+                        "tertiary-fixed-dim": "#7adb90",
+                        "tertiary-fixed": "#96f8aa",
+                        "surface-container-highest": "#31353c",
+                        "secondary-container": "#00b4a0",
+                        "border-subtle": "#2E3439",
+                        "surface-bright": "#353940",
+                        "error": "#E2635A",
+                        "primary": "#ffc89b",
+                        "on-error-container": "#ffdad6",
+                        "surface-tint": "#ffb779",
+                        "error-container": "#93000a",
+                        "on-secondary-fixed": "#00201b",
+                        "primary-container": "#f0a868",
+                        "primary-fixed-dim": "#ffb779",
+                        "text-faint": "#5B6167",
+                        "outline": "#9f8d81",
+                        "on-primary": "#4c2700",
+                        "inverse-surface": "#dfe2eb",
+                        "surface-container-low": "#181c22",
+                        "on-tertiary-fixed-variant": "#005225",
+                        "background": "#10141a",
+                        "on-secondary-container": "#003f37",
+                        "secondary": "#4ddcc6",
+                        "on-surface": "#dfe2eb",
+                        "on-secondary-fixed-variant": "#005047",
+                        "bg-panel": "#161B22",
+                        "surface-container": "#1c2026",
+                        "surface": "#10141a",
+                        "secondary-fixed": "#6ef9e2",
+                        "surface-container-high": "#262a31",
+                        "bg-raised": "#22262B",
+                        "surface-container-lowest": "#0a0e14",
+                        "primary-fixed": "#ffdcc1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-page": "24px",
+                        "gutter": "12px",
+                        "card-padding": "16px",
+                        "input-gap": "8px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "mono-sm": ["IBM Plex Mono"],
+                        "mono-data": ["IBM Plex Mono"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "600" }],
+                        "headline-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "headline-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "mono-sm": ["11px", { "lineHeight": "14px", "fontWeight": "400" }],
+                        "mono-data": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: theme('colors.background'); color: theme('colors.on-surface'); font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glow-active { box-shadow: 0 0 8px 1px rgba(77, 220, 198, 0.4); }
+        .glow-error { box-shadow: 0 0 8px 1px rgba(226, 99, 90, 0.4); }
+        
+        /* Custom scrollbar for terminal */
+        .terminal-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+        .terminal-scroll::-webkit-scrollbar-track { background: theme('colors.bg-panel'); }
+        .terminal-scroll::-webkit-scrollbar-thumb { background: theme('colors.border-subtle'); border-radius: 4px; }
+        .terminal-scroll::-webkit-scrollbar-thumb:hover { background: theme('colors.surface-bright'); }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-margin-page h-16 border-b border-border-subtle bg-surface dark:bg-surface flex-shrink-0">
+<div class="flex items-center gap-gutter">
+<h1 class="font-headline-lg text-headline-lg font-black text-primary">Industrial Modbus RTU</h1>
+</div>
+<nav class="hidden md:flex gap-margin-page h-full items-end">
+<a class="text-text-dim hover:text-on-surface font-headline-md text-headline-md pb-2 hover:text-primary transition-all duration-200" href="#">Registers</a>
+<a class="text-text-dim hover:text-on-surface font-headline-md text-headline-md pb-2 hover:text-primary transition-all duration-200" href="#">Macros</a>
+<a class="text-text-dim hover:text-on-surface font-headline-md text-headline-md pb-2 hover:text-primary transition-all duration-200" href="#">Scan</a>
+<a class="text-primary border-b-2 border-primary pb-2 font-headline-md text-headline-md" href="#">Logs</a>
+</nav>
+<div class="flex items-center gap-gutter">
+<div class="hidden sm:flex items-center gap-input-gap">
+<button class="bg-surface-variant text-text-dim hover:text-on-surface px-3 py-1.5 rounded border border-border-subtle font-label-caps text-label-caps transition-colors duration-200">Stop</button>
+<button class="bg-primary text-on-primary px-3 py-1.5 rounded font-label-caps text-label-caps font-bold hover:bg-primary-container transition-colors duration-200 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+                    Start Poll
+                </button>
+</div>
+<div class="flex items-center gap-2 ml-4 border-l border-border-subtle pl-4">
+<button class="text-text-dim hover:text-primary transition-colors cursor-pointer active:scale-95"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="text-text-dim hover:text-primary transition-colors cursor-pointer active:scale-95"><span class="material-symbols-outlined" data-icon="help_outline">help_outline</span></button>
+<img alt="User Avatar" class="w-8 h-8 rounded-full ml-2 border border-border-subtle object-cover" data-alt="A macro shot of a sleek, dark metallic industrial control panel with subtle glowing orange indicators and clean lines. Professional technical lighting, modern corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVV3RpFXOkbaJaQNPxsl4s7upQFIJNzn48_-K4iAHW7BGf1DHaJp_gFfqR83RK5uMleYBKfDNgEVjHqo6S8ytqipvic_mn3LP16cWnRtTI9Xgh__2jTPLHTqr6S1XYiOFyAFDwyarDHeGSeFY3fBqu77gjKHcawQQtYascVcC4GxILaYIS3NgIcDOP8jOPXW-2NhCqJ8WvalmZKr9BWn29Jzmw4DS4EmuTNVY2fcz7kaChK0DSUpEWBlmlECB9UwhDjMiW-ovazl0"/>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-full w-64 border-r border-border-subtle bg-surface-container dark:bg-surface-container overflow-y-auto flex-shrink-0">
+<div class="p-card-padding border-b border-border-subtle">
+<div class="flex items-center gap-3 mb-4">
+<img alt="Engineer Profile" class="w-10 h-10 rounded border border-border-subtle object-cover" data-alt="Close up of a brushed aluminum network switch port with a glowing green ethernet cable connected. Sharp focus, high contrast, industrial dark mode style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbf-sA6md2CTAxWvIyytcVYxRzjKIsIn37-XQO6fRYNeZvyvR609cyhUwoZYkBFs360iiQcJ1StYQUv0apf9dXApqDIii2_RcWh54gR6xrHziVAUj_Ej3NxLN6Rg19nvMwgbnQAGNqxRpb_imGtFuX_uPU3WVdUKjlZyM8N37xbhdbcQPhWBFmHInFxlJSSqB8Uo4_C3xFtAbzVxAR2rDcBLftFKeD06tiSKnnyhdsNM-4A5QCHvIQZEFyhWiC9ZOiB96VGIGNqGY"/>
+<div>
+<h2 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary leading-tight">Modbus Master</h2>
+<div class="flex items-center gap-1 mt-0.5">
+<span class="w-2 h-2 rounded-full bg-secondary glow-active"></span>
+<span class="font-mono-sm text-mono-sm text-text-dim">COM3: 9600-8N1</span>
+</div>
+</div>
+</div>
+<button class="w-full bg-raised text-primary border border-border-subtle hover:border-primary py-2 rounded font-label-caps text-label-caps transition-colors duration-200 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[16px]">add</span>
+                    New Connection
+                </button>
+</div>
+<nav class="flex-1 py-2">
+<a class="flex items-center gap-3 px-margin-page py-3 text-text-dim hover:text-on-surface hover:bg-surface-bright transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-margin-page py-3 text-text-dim hover:text-on-surface hover:bg-surface-bright transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings_ethernet">settings_ethernet</span>
+<span class="font-body-md text-body-md">Serial Config</span>
+</a>
+<a class="flex items-center gap-3 px-margin-page py-3 text-text-dim hover:text-on-surface hover:bg-surface-bright transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+<span class="font-body-md text-body-md">Slave Map</span>
+</a>
+<a class="flex items-center gap-3 px-margin-page py-3 bg-secondary-container text-on-secondary-container font-semibold border-l-4 border-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="font-body-md text-body-md">Diagnostics</span>
+</a>
+<a class="flex items-center gap-3 px-margin-page py-3 text-text-dim hover:text-on-surface hover:bg-surface-bright transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</nav>
+<div class="p-card-padding border-t border-border-subtle">
+<a class="flex items-center gap-3 px-2 py-2 text-text-dim hover:text-on-surface hover:bg-surface-bright transition-colors duration-200 rounded" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-body-md text-body-md">Log Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content: Traffic Console -->
+<main class="flex-1 flex flex-col min-w-0 bg-surface">
+<!-- Toolbar -->
+<div class="h-14 border-b border-border-subtle bg-bg-panel flex items-center justify-between px-margin-page flex-shrink-0">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-text-dim text-[20px]">filter_alt</span>
+<select class="bg-raised border border-border-subtle rounded text-on-surface font-mono-sm text-mono-sm py-1 px-2 focus:border-primary focus:ring-0 appearance-none pr-6">
+<option>All Slave IDs</option>
+<option>Slave 01 (PLC-A)</option>
+<option>Slave 02 (Sensors)</option>
+</select>
+<select class="bg-raised border border-border-subtle rounded text-on-surface font-mono-sm text-mono-sm py-1 px-2 focus:border-primary focus:ring-0 appearance-none pr-6">
+<option>All Functions</option>
+<option>FC03 (Read Hold)</option>
+<option>FC06 (Write Single)</option>
+</select>
+</div>
+<div class="h-6 w-px bg-border-subtle"></div>
+<div class="flex items-center gap-2">
+<label class="flex items-center gap-2 cursor-pointer">
+<input checked="" class="rounded border-border-subtle bg-raised text-primary focus:ring-primary focus:ring-offset-bg-panel h-4 w-4" type="checkbox"/>
+<span class="font-label-sm text-label-sm text-text-dim">Auto-scroll</span>
+</label>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="bg-raised border border-border-subtle text-text-dim hover:text-on-surface px-3 py-1 rounded font-label-caps text-label-caps transition-colors duration-200 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">delete</span>
+                        Clear
+                    </button>
+<button class="bg-raised border border-border-subtle text-text-dim hover:text-on-surface px-3 py-1 rounded font-label-caps text-label-caps transition-colors duration-200 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">download</span>
+                        Export
+                    </button>
+</div>
+</div>
+<!-- Dashboard / Terminal Area -->
+<div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+<!-- Terminal Window -->
+<div class="flex-1 flex flex-col bg-surface-container-lowest border-r border-border-subtle relative">
+<div class="flex-1 overflow-y-auto p-4 terminal-scroll font-mono-data text-mono-data">
+<!-- Log Header -->
+<div class="grid grid-cols-[100px_40px_80px_1fr] gap-4 mb-2 text-text-dim border-b border-border-subtle pb-2 select-none">
+<span>TIMESTAMP</span>
+<span>DIR</span>
+<span>SLAVE</span>
+<span>FRAME (HEX)</span>
+</div>
+<!-- Log Entries -->
+<div class="space-y-1">
+<!-- TX -->
+<div class="grid grid-cols-[100px_40px_80px_1fr] gap-4 py-1 hover:bg-surface-container transition-colors">
+<span class="text-text-faint">14:02:01.450</span>
+<span class="text-secondary">TX</span>
+<span class="text-secondary-fixed">01</span>
+<span class="text-on-surface break-all"><span class="text-secondary">01</span> <span class="text-tertiary">03</span> 00 00 00 0A <span class="text-text-dim">C5 CD</span></span>
+</div>
+<!-- RX -->
+<div class="grid grid-cols-[100px_40px_80px_1fr] gap-4 py-1 hover:bg-surface-container transition-colors">
+<span class="text-text-faint">14:02:01.485</span>
+<span class="text-primary">RX</span>
+<span class="text-primary-container">01</span>
+<span class="text-on-surface break-all"><span class="text-primary-container">01</span> <span class="text-tertiary">03</span> 14 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 <span class="text-text-dim">4B 1C</span></span>
+</div>
+<!-- TX -->
+<div class="grid grid-cols-[100px_40px_80px_1fr] gap-4 py-1 hover:bg-surface-container transition-colors">
+<span class="text-text-faint">14:02:02.450</span>
+<span class="text-secondary">TX</span>
+<span class="text-secondary-fixed">02</span>
+<span class="text-on-surface break-all"><span class="text-secondary">02</span> <span class="text-tertiary">04</span> 00 10 00 02 <span class="text-text-dim">71 F0</span></span>
+</div>
+<!-- ERR -->
+<div class="grid grid-cols-[100px_40px_80px_1fr] gap-4 py-1 bg-error-container/20 border-l-2 border-error hover:bg-error-container/30 transition-colors">
+<span class="text-text-faint pl-2">14:02:02.500</span>
+<span class="text-error font-bold">ERR</span>
+<span class="text-error">02</span>
+<span class="text-error break-all">TIMEOUT - NO RESPONSE RECEIVED</span>
+</div>
+<!-- TX -->
+<div class="grid grid-cols-[100px_40px_80px_1fr] gap-4 py-1 hover:bg-surface-container transition-colors">
+<span class="text-text-faint">14:02:03.450</span>
+<span class="text-secondary">TX</span>
+<span class="text-secondary-fixed">01</span>
+<span class="text-on-surface break-all"><span class="text-secondary">01</span> <span class="text-tertiary">06</span> 00 05 00 01 <span class="text-text-dim">58 0B</span></span>
+</div>
+<!-- RX -->
+<div class="grid grid-cols-[100px_40px_80px_1fr] gap-4 py-1 hover:bg-surface-container transition-colors">
+<span class="text-text-faint">14:02:03.490</span>
+<span class="text-primary">RX</span>
+<span class="text-primary-container">01</span>
+<span class="text-on-surface break-all"><span class="text-primary-container">01</span> <span class="text-tertiary">06</span> 00 05 00 01 <span class="text-text-dim">58 0B</span></span>
+</div>
+<!-- TX -->
+<div class="grid grid-cols-[100px_40px_80px_1fr] gap-4 py-1 hover:bg-surface-container transition-colors">
+<span class="text-text-faint">14:02:04.450</span>
+<span class="text-secondary">TX</span>
+<span class="text-secondary-fixed">01</span>
+<span class="text-on-surface break-all"><span class="text-secondary">01</span> <span class="text-tertiary">03</span> 00 00 00 0A <span class="text-text-dim">C5 CD</span></span>
+</div>
+<!-- RX -->
+<div class="grid grid-cols-[100px_40px_80px_1fr] gap-4 py-1 hover:bg-surface-container transition-colors">
+<span class="text-text-faint">14:02:04.485</span>
+<span class="text-primary">RX</span>
+<span class="text-primary-container">01</span>
+<span class="text-on-surface break-all"><span class="text-primary-container">01</span> <span class="text-tertiary">03</span> 14 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 <span class="text-text-dim">4B 1C</span></span>
+</div>
+<!-- TX -->
+<div class="grid grid-cols-[100px_40px_80px_1fr] gap-4 py-1 hover:bg-surface-container transition-colors">
+<span class="text-text-faint">14:02:05.450</span>
+<span class="text-secondary">TX</span>
+<span class="text-secondary-fixed">01</span>
+<span class="text-on-surface break-all"><span class="text-secondary">01</span> <span class="text-tertiary">03</span> 00 00 00 0A <span class="text-text-dim">C5 CD</span></span>
+</div>
+<!-- RX -->
+<div class="grid grid-cols-[100px_40px_80px_1fr] gap-4 py-1 hover:bg-surface-container transition-colors">
+<span class="text-text-faint">14:02:05.485</span>
+<span class="text-primary">RX</span>
+<span class="text-primary-container">01</span>
+<span class="text-on-surface break-all"><span class="text-primary-container">01</span> <span class="text-tertiary">03</span> 14 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 <span class="text-text-dim">4B 1C</span></span>
+</div>
+<div class="grid grid-cols-[100px_40px_80px_1fr] gap-4 py-1 hover:bg-surface-container transition-colors">
+<span class="text-text-faint flex items-center"><span class="animate-pulse w-2 h-2 bg-text-dim rounded-full mr-2"></span> Waiting</span>
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Statistics Sidebar -->
+<div class="w-full lg:w-80 bg-surface-container p-margin-page overflow-y-auto flex-shrink-0">
+<h3 class="font-headline-md text-headline-md font-bold mb-6 text-on-surface">Link Statistics</h3>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="bg-bg-raised p-card-padding rounded border border-border-subtle">
+<span class="font-label-caps text-label-caps text-text-dim block mb-1">Success Rate</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg font-black text-tertiary">98.5</span>
+<span class="font-label-sm text-label-sm text-text-dim">%</span>
+</div>
+</div>
+<div class="bg-bg-raised p-card-padding rounded border border-border-subtle">
+<span class="font-label-caps text-label-caps text-text-dim block mb-1">Avg Latency</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg font-black text-on-surface">35</span>
+<span class="font-label-sm text-label-sm text-text-dim">ms</span>
+</div>
+</div>
+<div class="bg-bg-raised p-card-padding rounded border border-border-subtle">
+<span class="font-label-caps text-label-caps text-text-dim block mb-1">Frames TX</span>
+<span class="font-headline-md text-headline-md font-mono text-secondary">14,204</span>
+</div>
+<div class="bg-bg-raised p-card-padding rounded border border-border-subtle">
+<span class="font-label-caps text-label-caps text-text-dim block mb-1">Frames RX</span>
+<span class="font-headline-md text-headline-md font-mono text-primary">13,991</span>
+</div>
+</div>
+<div class="bg-bg-raised rounded border border-border-subtle p-card-padding mb-6">
+<div class="flex justify-between items-center mb-4">
+<span class="font-label-caps text-label-caps text-text-dim">Error Breakdown</span>
+</div>
+<div class="space-y-3">
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface">Timeouts</span>
+<span class="text-error font-mono">152</span>
+</div>
+<div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
+<div class="bg-error h-full" style="width: 70%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface">CRC Failures</span>
+<span class="text-error font-mono">45</span>
+</div>
+<div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
+<div class="bg-error h-full" style="width: 20%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface">Exception Responses</span>
+<span class="text-primary font-mono">16</span>
+</div>
+<div class="w-full bg-surface-dim h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full" style="width: 10%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
