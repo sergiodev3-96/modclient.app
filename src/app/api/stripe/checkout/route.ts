@@ -21,7 +21,7 @@ export async function POST() {
       .from('profiles')
       .select('stripe_customer_id, plan')
       .eq('id', user.id)
-      .single();
+      .single() as { data: any, error: any };
 
     if (!profile) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
