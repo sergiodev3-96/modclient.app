@@ -1,13 +1,13 @@
 import Stripe from 'stripe';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { STRIPE_PRICE_ID } from '@/lib/stripe/config';
+import { STRIPE_PRICE_ID, STRIPE_ULTIMATE_PRICE_ID } from '@/lib/stripe/config';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_key', {
   apiVersion: '2026-06-24.dahlia',
 });
 
-export async function POST() {
+export async function POST(req: Request) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -15,6 +15,9 @@ export async function POST() {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const body = await req.json().catch(() => ({}));
+    const targetPlan = body.plan === 'ultimate' ? 'ultimate' : 'pro';
 
     // Get user profile to check if they already have a Stripe customer ID
     const { data: profile } = await supabase
@@ -29,7 +32,7 @@ export async function POST() {
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
-    if (profile.plan === 'pro' && profile.stripe_customer_id) {
+    if ((profile.plan === 'pro' || profile.plan === 'ultimate') && profile.stripe_customer_id && !body.plan) {
       // Create a billing portal session
       const stripeSession = await stripe.billingPortal.sessions.create({
         customer: profile.stripe_customer_id,
@@ -37,7 +40,11 @@ export async function POST() {
       });
       return NextResponse.json({ url: stripeSession.url });
     } else {
-      // Create a checkout session
+      // Create a checkout session for target plan
+      const priceId = targetPlan === 'ultimate' 
+        ? (process.env.NEXT_PUBLIC_STRIPE_ULTIMATE_PRICE_ID || STRIPE_ULTIMATE_PRICE_ID)
+        : (process.env.NEXT_PUBLIC_STRIPE_PRICE_ID || STRIPE_PRICE_ID);
+
       const stripeSession = await stripe.checkout.sessions.create({
         success_url: `${appUrl}/console/settings?success=true`,
         cancel_url: `${appUrl}/console/settings?canceled=true`,
@@ -48,12 +55,13 @@ export async function POST() {
         customer: profile.stripe_customer_id || undefined,
         line_items: [
           {
-            price: STRIPE_PRICE_ID,
+            price: priceId,
             quantity: 1,
           },
         ],
         metadata: {
           userId: user.id,
+          plan: targetPlan,
         },
       });
 

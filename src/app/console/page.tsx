@@ -30,14 +30,14 @@ export default function ConsolePage() {
   const t = useTranslations('registers');
   const { manager, isConnected, isSupported } = useSerial();
   const supabase = createClient();
-  const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
+  const [userPlan, setUserPlan] = useState<'free' | 'pro' | 'ultimate'>('free');
 
   useEffect(() => {
     async function loadPlan() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       const { data: profile } = await supabase.from('profiles').select('plan').eq('id', user.id).single() as { data: any, error: any };
-      if (profile) setUserPlan(profile.plan as 'free' | 'pro');
+      if (profile) setUserPlan(profile.plan as 'free' | 'pro' | 'ultimate');
     }
     loadPlan();
   }, [supabase]);
@@ -121,7 +121,7 @@ export default function ConsolePage() {
 
   // Polling effect
   useEffect(() => {
-    if (isPolling && isConnected && userPlan === 'pro') {
+    if (isPolling && isConnected && userPlan !== 'free') {
       doRead(); // initial read
       pollRef.current = setInterval(doRead, pollInterval);
     } else {
@@ -214,12 +214,12 @@ export default function ConsolePage() {
           </button>
           
           <div className="flex items-center gap-2" style={{ marginLeft: 16 }}>
-            <label className="flex items-center gap-2" style={{ fontSize: 13, color: 'var(--text-dim)', cursor: userPlan === 'pro' ? 'pointer' : 'not-allowed' }}>
+            <label className="flex items-center gap-2" style={{ fontSize: 13, color: 'var(--text-dim)', cursor: userPlan !== 'free' ? 'pointer' : 'not-allowed' }}>
               <input 
                 type="checkbox" 
                 checked={isPolling} 
                 onChange={e => setIsPolling(e.target.checked)} 
-                disabled={!isConnected || userPlan !== 'pro'}
+                disabled={!isConnected || userPlan === 'free'}
               />
               <Clock size={13} /> {t('autoPoll')}
             </label>
@@ -231,7 +231,7 @@ export default function ConsolePage() {
                 <option value={5000}>5s</option>
               </select>
             )}
-            {userPlan !== 'pro' && <span className="badge badge--accent ml-2"><Lock size={10} style={{ display: 'inline', marginRight: 4 }} />Pro</span>}
+            {userPlan === 'free' && <span className="badge badge--accent ml-2"><Lock size={10} style={{ display: 'inline', marginRight: 4 }} />Pro</span>}
           </div>
 
           <div style={{ flex: 1 }} />

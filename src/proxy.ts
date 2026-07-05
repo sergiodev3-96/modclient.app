@@ -31,7 +31,7 @@ export async function proxy(request: NextRequest) {
 
   // Public paths: allow without auth
   const publicPaths = ['/login', '/signup', '/auth/callback'];
-  const isPublicPath = publicPaths.some(p => pathname.startsWith(p));
+  const isPublicPath = pathname === '/' || publicPaths.some(p => pathname.startsWith(p));
 
   // Redirect unauthenticated users to login
   if (!user && !isPublicPath) {

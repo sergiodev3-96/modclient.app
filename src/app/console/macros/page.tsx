@@ -6,6 +6,7 @@ import { buildMacroFrame } from '@/lib/modbus/frames';
 import type { Macro, MacroAction, MacroColor, UserProfile } from '@/types/project';
 import { Plus, Play, Pencil, Trash2, Lock, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { getPlanLimits } from '@/lib/stripe/config';
 
 const MAX_FREE_MACROS = 3;
 const MAX_FREE_COMMANDS = 2;
@@ -35,11 +36,12 @@ export default function MacrosPage() {
   const { manager, isConnected } = useSerial();
   const supabase = createClient();
 
-  const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
+  const [userPlan, setUserPlan] = useState<'free' | 'pro' | 'ultimate'>('free');
   const [projectId, setProjectId] = useState<string | null>(null);
   
-  const maxMacros = userPlan === 'pro' ? Infinity : MAX_FREE_MACROS;
-  const maxCommands = userPlan === 'pro' ? Infinity : MAX_FREE_COMMANDS;
+  const limits = getPlanLimits(userPlan);
+  const maxMacros = limits.maxMacros;
+  const maxCommands = limits.maxCommandsPerMacro;
 
   const [macros, setMacros] = useState<Macro[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -59,7 +61,7 @@ export default function MacrosPage() {
 
       // Get profile plan
       const { data: profile } = await supabase.from('profiles').select('plan').eq('id', user.id).single() as { data: any, error: any };
-      if (profile) setUserPlan(profile.plan as 'free' | 'pro');
+      if (profile) setUserPlan(profile.plan as 'free' | 'pro' | 'ultimate');
 
       // Get or create default project
       let pid = null;
@@ -275,12 +277,19 @@ export default function MacrosPage() {
           ))}
         </div>
 
-        {/* Free plan command limit */}
-        {actions.length >= maxCommands && userPlan === 'free' && (
+        {/* Command limit warning */}
+        {actions.length >= maxCommands && userPlan !== 'ultimate' && (
           <div className="upgrade-banner mb-3">
             <Lock size={13} />
-            <span>{t('limitCommands', { max: MAX_FREE_COMMANDS })}</span>
-            <button className="upgrade-cta" onClick={() => {}}>Upgrade to Pro →</button>
+            <span>
+              {userPlan === 'free' 
+                ? t('limitCommands', { max: maxCommands }) 
+                : `Plan Pro: máx. ${maxCommands} comandos por automatización`
+              }
+            </span>
+            <button className="upgrade-cta" onClick={() => window.location.href = '/console/settings'}>
+              {userPlan === 'free' ? 'Upgrade to Pro →' : 'Upgrade to Ultimate →'}
+            </button>
           </div>
         )}
 
@@ -288,7 +297,7 @@ export default function MacrosPage() {
         <div className="flex gap-3 items-center">
           <button id="btn-add-command" className="btn-ghost btn-sm"
             onClick={addAction}
-            disabled={actions.length >= maxCommands && userPlan === 'free'}>
+            disabled={actions.length >= maxCommands && userPlan !== 'ultimate'}>
             <Plus size={13} /> {t('addCommand')}
           </button>
           <button id="btn-save-macro" className="btn-primary btn-sm" onClick={saveMacro}>
@@ -308,18 +317,27 @@ export default function MacrosPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="card-title">{t('library')}</h2>
           <div className="flex gap-2 items-center">
-            {atMacroLimit && userPlan === 'free' && (
-              <span className="badge badge--accent">{t('limitFree', { max: MAX_FREE_MACROS })}</span>
+            {atMacroLimit && userPlan !== 'ultimate' && (
+              <span className="badge badge--accent">
+                {userPlan === 'free' ? t('limitFree', { max: maxMacros }) : `Plan Pro: máx. ${maxMacros}`}
+              </span>
             )}
           </div>
         </div>
 
         {/* Upgrade banner at limit */}
-        {atMacroLimit && userPlan === 'free' && (
+        {atMacroLimit && userPlan !== 'ultimate' && (
           <div className="upgrade-banner mb-4">
             <Lock size={13} />
-            <span>{t('limitFree', { max: MAX_FREE_MACROS })} — {t('desc')}</span>
-            <button className="upgrade-cta">Upgrade to Pro →</button>
+            <span>
+              {userPlan === 'free' 
+                ? `${t('limitFree', { max: maxMacros })} — ${t('desc')}` 
+                : `Plan Pro: máx. ${maxMacros} automatizaciones guardadas.`
+              }
+            </span>
+            <button className="upgrade-cta" onClick={() => window.location.href = '/console/settings'}>
+              {userPlan === 'free' ? 'Upgrade to Pro →' : 'Upgrade to Ultimate →'}
+            </button>
           </div>
         )}
 

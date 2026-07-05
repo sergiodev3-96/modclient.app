@@ -53,14 +53,14 @@ export default function LogsPage() {
   const { logs, clearLogs, txCount, rxCount, errorCount, avgLatency } = useSerial();
   const boxRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
-  const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
+  const [userPlan, setUserPlan] = useState<'free' | 'pro' | 'ultimate'>('free');
 
   useEffect(() => {
     async function loadPlan() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       const { data: profile } = await supabase.from('profiles').select('plan').eq('id', user.id).single() as { data: any, error: any };
-      if (profile) setUserPlan(profile.plan as 'free' | 'pro');
+      if (profile) setUserPlan(profile.plan as 'free' | 'pro' | 'ultimate');
     }
     loadPlan();
   }, [supabase]);
@@ -77,8 +77,8 @@ export default function LogsPage() {
     : 0;
 
   function handleExport(format: 'csv' | 'json') {
-    if (userPlan !== 'pro') {
-      alert('Log export is a Pro feature.');
+    if (userPlan === 'free') {
+      alert('Log export is a Pro/Ultimate feature.');
       return;
     }
     
@@ -119,14 +119,14 @@ export default function LogsPage() {
               <h2 className="card-title" style={{ marginBottom: 0 }}>{t('title')}</h2>
             </div>
             <div className="flex gap-2">
-              <div className="flex gap-1" style={{ marginRight: 8, opacity: userPlan === 'pro' ? 1 : 0.6 }}>
-                <button className="btn-ghost btn-sm" onClick={() => handleExport('csv')} disabled={userPlan !== 'pro' || logs.length === 0}>
+              <div className="flex gap-1" style={{ marginRight: 8, opacity: userPlan !== 'free' ? 1 : 0.6 }}>
+                <button className="btn-ghost btn-sm" onClick={() => handleExport('csv')} disabled={userPlan === 'free' || logs.length === 0}>
                   <Download size={13} /> CSV
                 </button>
-                <button className="btn-ghost btn-sm" onClick={() => handleExport('json')} disabled={userPlan !== 'pro' || logs.length === 0}>
+                <button className="btn-ghost btn-sm" onClick={() => handleExport('json')} disabled={userPlan === 'free' || logs.length === 0}>
                   <Download size={13} /> JSON
                 </button>
-                {userPlan !== 'pro' && <span className="badge badge--accent ml-2"><Lock size={10} style={{ display: 'inline', marginRight: 4 }} />Pro</span>}
+                {userPlan === 'free' && <span className="badge badge--accent ml-2"><Lock size={10} style={{ display: 'inline', marginRight: 4 }} />Pro</span>}
               </div>
               <button id="btn-clear-log" className="btn-ghost btn-sm" onClick={clearLogs}>
                 <Trash2 size={13} /> {t('clear')}

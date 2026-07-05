@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     template: '%s | modclient',
   },
   description:
-    'Professional Modbus RTU engineering console. Control USB-RS485 devices directly from your browser. Read/write registers, create macros, scan the bus.',
+    'Professional Modbus RTU engineering console. Control USB-RS485 devices directly from your browser. Read/write registers, automate sequences, scan the bus.',
   keywords: ['modbus', 'rtu', 'rs485', 'serial', 'usb', 'engineering', 'console', 'web serial'],
   authors: [{ name: 'modclient.com' }],
   openGraph: {

@@ -1,4 +1,4 @@
-export type PlanId = 'free' | 'pro';
+export type PlanId = 'free' | 'pro' | 'ultimate';
 
 export interface PlanLimits {
   maxProjects: number;
@@ -21,19 +21,32 @@ export const PLANS: Record<PlanId, PlanLimits> = {
     canModbusTcp: false,
   },
   pro: {
-    maxProjects: 50,
+    maxProjects: 10,
+    maxMacros: 25,
+    maxCommandsPerMacro: 5,
+    canExportLogs: true,
+    canAutoPoll: true,
+    canSlaveMap: true,
+    canModbusTcp: false,
+  },
+  ultimate: {
+    maxProjects: Infinity,
     maxMacros: Infinity,
     maxCommandsPerMacro: Infinity,
     canExportLogs: true,
     canAutoPoll: true,
     canSlaveMap: true,
-    canModbusTcp: false, // Future
+    canModbusTcp: false,
   },
 } as const;
 
 export const PRO_PRICE_EUR = 4.99;
 export const PRO_PRICE_DISPLAY = '4,99 €/mes';
 export const STRIPE_PRICE_ID = process.env.NEXT_PUBLIC_STRIPE_PRICE_ID ?? '';
+
+export const ULTIMATE_PRICE_EUR = 16.99;
+export const ULTIMATE_PRICE_DISPLAY = '16,99 €/mes';
+export const STRIPE_ULTIMATE_PRICE_ID = process.env.NEXT_PUBLIC_STRIPE_ULTIMATE_PRICE_ID ?? '';
 
 export function getPlanLimits(plan: PlanId): PlanLimits {
   return PLANS[plan];

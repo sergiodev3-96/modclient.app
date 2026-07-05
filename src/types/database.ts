@@ -10,7 +10,7 @@ export interface Database {
           id: string;
           display_name: string | null;
           avatar_url: string | null;
-          plan: 'free' | 'pro';
+          plan: 'free' | 'pro' | 'ultimate';
           stripe_customer_id: string | null;
           created_at: string;
           updated_at: string;
@@ -19,13 +19,13 @@ export interface Database {
           id: string;
           display_name?: string | null;
           avatar_url?: string | null;
-          plan?: 'free' | 'pro';
+          plan?: 'free' | 'pro' | 'ultimate';
           stripe_customer_id?: string | null;
         };
         Update: {
           display_name?: string | null;
           avatar_url?: string | null;
-          plan?: 'free' | 'pro';
+          plan?: 'free' | 'pro' | 'ultimate';
           stripe_customer_id?: string | null;
           updated_at?: string;
         };

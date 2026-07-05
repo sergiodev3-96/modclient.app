@@ -6,7 +6,7 @@
   },
   "nav": {
     "registers": "Registers",
-    "macros": "Macros",
+    "macros": "Automations",
     "scan": "Scan",
     "logs": "Console",
     "settings": "Settings",
@@ -59,11 +59,11 @@
     "autoPoll": "Auto Polling"
   },
   "macros": {
-    "title": "Macros & Sequences",
+    "title": "Automations & Sequences",
     "desc": "Configure and execute automated register write sequences.",
-    "create": "+ Create Macro",
-    "library": "Macro Library",
-    "builderTitle": "Create Sequence Button (Macro)",
+    "create": "+ Create Automation",
+    "library": "Automation Library",
+    "builderTitle": "Create Sequence Button (Automation)",
     "builderDesc": "Define a command or chain multiple frames with delays. Choose a color to identify it.",
     "editingTitle": "Editing: {name}",
     "name": "Button / Routine Name",
@@ -89,8 +89,8 @@
     "cmdAddr": "Address",
     "cmdVal": "Value / Qty",
     "cmdDelay": "Delay (ms)",
-    "limitFree": "Free plan: max {max} macros",
-    "limitCommands": "Free plan: max {max} commands per macro"
+    "limitFree": "Free plan: max {max} automations",
+    "limitCommands": "Free plan: max {max} commands per automation"
   },
   "scan": {
     "title": "Network Discovery",
@@ -160,7 +160,7 @@
     "currentPlan": "Current plan",
     "managePlan": "Manage Subscription",
     "upgradeTitle": "Upgrade to Pro",
-    "upgradeDesc": "Unlock unlimited projects, macros, log export, and more.",
+    "upgradeDesc": "Unlock unlimited projects, automations, log export, and more.",
     "upgradePrice": "€4.99/month",
     "upgradeCta": "Upgrade to Pro",
     "danger": "Danger Zone",
@@ -184,8 +184,10 @@
   "plans": {
     "free": "Free",
     "pro": "Pro",
-    "freeFeatures": ["1 project", "3 macros", "2 commands per macro", "Frame console"],
-    "proFeatures": ["50 projects", "Unlimited macros", "Unlimited commands", "Export logs CSV/JSON", "Auto polling", "Slave map"]
+    "ultimate": "Ultimate",
+    "freeFeatures": ["1 project", "3 automations", "2 commands per automation", "Frame console"],
+    "proFeatures": ["10 projects", "25 automations", "5 commands per automation", "Frame console", "Export logs CSV/JSON", "Auto polling", "Slave map"],
+    "ultimateFeatures": ["Unlimited projects", "Unlimited automations", "Unlimited commands", "Frame console", "Export logs CSV/JSON", "Auto polling", "Slave map"]
   },
   "errors": {
     "webSerialNotSupported": "Web Serial API not available. Use Chrome or Edge on desktop.",
@@ -200,5 +202,76 @@
     "title": "Discovered Devices",
     "empty": "Bus not scanned yet.",
     "scanHint": "Go to the 'Scan' tab."
+  },
+  "landing": {
+    "hero": {
+      "systemVersion": "INDUSTRIAL LOGIC SYSTEM V4.0",
+      "title": "Professional Modbus RTU Control",
+      "subtitle": "The ultimate console for Modbus RS485 communication. Real-time register mapping, automated sequences, and high-density diagnostic logging.",
+      "ctaStart": "Get Started Free",
+      "ctaDocs": "Documentation",
+      "status": "Status",
+      "statusConnected": "CONNECTED",
+      "latency": "Latency",
+      "latencyAvg": "14ms AVG",
+      "throughput": "Throughput",
+      "throughputVal": "1.2 KB/s",
+      "errorRate": "Error Rate"
+    },
+    "audience": {
+      "title": "Built for the Field",
+      "desc": "Precision tools designed for the rigors of industrial automation and technical engineering.",
+      "fieldEngTitle": "Field Engineers",
+      "fieldEngDesc": "On-site troubleshooting with high-fidelity register mapping and real-time hex logs for immediate diagnostic clarity.",
+      "fieldEngCta": "View Toolkit",
+      "plcDevTitle": "PLC Developers",
+      "plcDevDesc": "Simulate slave responses and automate device commissioning with advanced automation sequencing and scriptable triggers.",
+      "plcDevCta": "Automation APIs",
+      "sysIntTitle": "Systems Integrators",
+      "sysIntDesc": "Verify complex multi-slave topologies. Identify address collisions and communication bottlenecks across the entire RS485 chain.",
+      "sysIntCta": "Integration Maps"
+    },
+    "features": {
+      "registersTitle": "Real-Time Register Mapping",
+      "registersDesc": "Experience a live, color-coded view of every register in your network. Our precision interface translates raw hex data into human-readable engineering units in real-time.",
+      "registersItem1": "Multi-format support (Float, Int32, BCD)",
+      "registersItem2": "Auto-scan identification for Slave IDs",
+      "registersItem3": "Persistence logging for offline analysis",
+      "scanTitle": "Autonomous Scan Sequences",
+      "scanDesc": "Automatically map your entire network topology in seconds. Our smart scan algorithm identifies baud rates and parity settings without manual configuration."
+    },
+    "pricing": {
+      "title": "Scalable Licensing",
+      "desc": "Choose the plan that fits your operational needs, from solo technicians to enterprise teams.",
+      "freeName": "Technician Free",
+      "freePrice": "0 €",
+      "freePeriod": "/forever",
+      "freeCta": "Start Free",
+      "proName": "Engineering Pro",
+      "proPrice": "4,99 €",
+      "proPeriod": "/month",
+      "proCta": "Go Professional",
+      "recommended": "Recommended",
+      "ultimateName": "Industrial Elite",
+      "ultimatePrice": "16,99 €",
+      "ultimatePeriod": "/month",
+      "ultimateCta": "Go Elite"
+    },
+    "footer": {
+      "desc": "The industry standard for serial communications analysis.",
+      "product": "Product",
+      "features": "Features",
+      "roadmap": "Roadmap",
+      "changelog": "Changelog",
+      "resources": "Resources",
+      "docs": "Docs",
+      "community": "Community",
+      "api": "API",
+      "company": "Company",
+      "about": "About Us",
+      "contact": "Contact",
+      "legal": "Legal",
+      "statusOperational": "SYSTEM_STATUS: OPERATIONAL"
+    }
   }
 }

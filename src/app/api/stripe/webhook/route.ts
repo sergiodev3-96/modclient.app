@@ -3,6 +3,8 @@ import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+import { STRIPE_PRICE_ID, STRIPE_ULTIMATE_PRICE_ID } from '@/lib/stripe/config';
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_key', {
   apiVersion: '2026-06-24.dahlia',
 });
@@ -35,13 +37,14 @@ export async function POST(req: Request) {
         const session = event.data.object as Stripe.Checkout.Session;
         if (session.mode === 'subscription') {
           const userId = session.metadata?.userId;
+          const plan = session.metadata?.plan || 'pro';
           if (userId) {
             // Update profile with stripe customer id and upgrade plan
             await supabase
               .from('profiles')
               .update({
                 stripe_customer_id: session.customer as string,
-                plan: 'pro'
+                plan: plan
               })
               .eq('id', userId);
             
@@ -67,6 +70,24 @@ export async function POST(req: Request) {
             stripe_price_id: subscription.items.data[0].price.id,
           })
           .eq('stripe_subscription_id', subscription.id);
+
+        // Update profile plan according to the price ID
+        const priceId = subscription.items.data[0].price.id;
+        const uPriceId = process.env.NEXT_PUBLIC_STRIPE_ULTIMATE_PRICE_ID || STRIPE_ULTIMATE_PRICE_ID;
+        const targetPlan = priceId === uPriceId ? 'ultimate' : 'pro';
+
+        const { data: subData } = await supabase
+          .from('subscriptions')
+          .select('user_id')
+          .eq('stripe_subscription_id', subscription.id)
+          .single();
+
+        if (subData) {
+          await supabase
+            .from('profiles')
+            .update({ plan: targetPlan })
+            .eq('id', subData.user_id);
+        }
         break;
       }
       case 'customer.subscription.deleted': {

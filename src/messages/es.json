@@ -6,7 +6,7 @@
   },
   "nav": {
     "registers": "Registros",
-    "macros": "Macros",
+    "macros": "Automatizaciones",
     "scan": "Escanear",
     "logs": "Consola",
     "settings": "Ajustes",
@@ -59,11 +59,11 @@
     "autoPoll": "Auto Polling"
   },
   "macros": {
-    "title": "Macros & Secuencias",
+    "title": "Automatizaciones y Secuencias",
     "desc": "Configura y ejecuta secuencias automatizadas de escritura en registros.",
-    "create": "+ Crear Macro",
-    "library": "Biblioteca de Macros",
-    "builderTitle": "Crear Botón de Secuencia (Macro)",
+    "create": "+ Crear Automatización",
+    "library": "Biblioteca de Automatizaciones",
+    "builderTitle": "Crear Botón de Secuencia (Automatización)",
     "builderDesc": "Define un comando o encadena varias tramas consecutivas con retardos. Elige un color para identificarla.",
     "editingTitle": "Editando: {name}",
     "name": "Nombre del Botón / Rutina",
@@ -89,8 +89,8 @@
     "cmdAddr": "Dirección",
     "cmdVal": "Valor / Cant.",
     "cmdDelay": "Pausa (ms)",
-    "limitFree": "Plan Free: máx. {max} macros",
-    "limitCommands": "Plan Free: máx. {max} comandos por macro"
+    "limitFree": "Plan Free: máx. {max} automatizaciones",
+    "limitCommands": "Plan Free: máx. {max} comandos por automatización"
   },
   "scan": {
     "title": "Descubrimiento de Red",
@@ -160,7 +160,7 @@
     "currentPlan": "Plan actual",
     "managePlan": "Gestionar Suscripción",
     "upgradeTitle": "Pasa a Pro",
-    "upgradeDesc": "Desbloquea proyectos ilimitados, macros ilimitadas, exportación de logs y más.",
+    "upgradeDesc": "Desbloquea proyectos ilimitados, automatizaciones ilimitadas, exportación de logs y más.",
     "upgradePrice": "4,99 €/mes",
     "upgradeCta": "Actualizar a Pro",
     "danger": "Zona de Peligro",
@@ -184,8 +184,10 @@
   "plans": {
     "free": "Free",
     "pro": "Pro",
-    "freeFeatures": ["1 proyecto", "3 macros", "2 comandos por macro", "Consola de tramas"],
-    "proFeatures": ["50 proyectos", "Macros ilimitadas", "Comandos ilimitados", "Exportar logs CSV/JSON", "Polling automático", "Mapa de esclavos"]
+    "ultimate": "Ultimate",
+    "freeFeatures": ["1 proyecto", "3 automatizaciones", "2 comandos por automatización", "Consola de tramas"],
+    "proFeatures": ["10 proyectos", "25 automatizaciones", "5 comandos por automatización", "Consola de tramas", "Exportar logs CSV/JSON", "Polling automático", "Mapa de esclavos"],
+    "ultimateFeatures": ["Proyectos ilimitados", "Automatizaciones ilimitadas", "Comandos ilimitados", "Consola de tramas", "Exportar logs CSV/JSON", "Polling automático", "Mapa de esclavos"]
   },
   "errors": {
     "webSerialNotSupported": "Web Serial API no disponible. Usa Chrome o Edge de escritorio.",
@@ -200,5 +202,76 @@
     "title": "Dispositivos Detectados",
     "empty": "Aún no se ha escaneado el bus.",
     "scanHint": "Ve a la pestaña «Escanear»."
+  },
+  "landing": {
+    "hero": {
+      "systemVersion": "SISTEMA LÓGICO INDUSTRIAL V4.0",
+      "title": "Control Modbus RTU Profesional",
+      "subtitle": "La consola definitiva para comunicaciones Modbus RS485. Mapeo de registros en tiempo real, secuencias automatizadas y registro de diagnóstico de alta densidad.",
+      "ctaStart": "Empezar Gratis",
+      "ctaDocs": "Documentación",
+      "status": "Estado",
+      "statusConnected": "CONECTADO",
+      "latency": "Latencia",
+      "latencyAvg": "14ms MED",
+      "throughput": "Rendimiento",
+      "throughputVal": "1.2 KB/s",
+      "errorRate": "Tasa de Error"
+    },
+    "audience": {
+      "title": "Creado para el Trabajo de Campo",
+      "desc": "Herramientas de precisión diseñadas para las exigencias de la automatización industrial y la ingeniería técnica.",
+      "fieldEngTitle": "Ingenieros de Campo",
+      "fieldEngDesc": "Resolución de problemas en planta con mapeo de registros de alta fidelidad y registros hexadecimales en tiempo real para una claridad de diagnóstico inmediata.",
+      "fieldEngCta": "Ver Herramientas",
+      "plcDevTitle": "Desarrolladores de PLC",
+      "plcDevDesc": "Simula respuestas de esclavos y automatiza la puesta en marcha con secuencias de automatización avanzadas y disparadores personalizables.",
+      "plcDevCta": "APIs de Automatización",
+      "sysIntTitle": "Integradores de Sistemas",
+      "sysIntDesc": "Verifica topologías complejas de múltiples esclavos. Identifica colisiones de direcciones y cuellos de botella en toda la cadena RS485.",
+      "sysIntCta": "Mapas de Integración"
+    },
+    "features": {
+      "registersTitle": "Mapeo de Registros en Tiempo Real",
+      "registersDesc": "Experimenta una vista en vivo y codificada por colores de cada registro de tu red. Nuestra interfaz de precisión traduce datos hexadecimales sin procesar a unidades de ingeniería legibles.",
+      "registersItem1": "Soporte multi-formato (Float, Int32, BCD)",
+      "registersItem2": "Identificación por auto-escaneo de IDs de Esclavo",
+      "registersItem3": "Registro persistente para análisis sin conexión",
+      "scanTitle": "Secuencias de Escaneo Autónomas",
+      "scanDesc": "Mapea toda la topología de tu red en segundos. Nuestro algoritmo de escaneo inteligente identifica velocidades de baudios y ajustes de paridad automáticamente."
+    },
+    "pricing": {
+      "title": "Licencias Escalables",
+      "desc": "Elige el plan que se adapte a tus necesidades operativas, desde técnicos individuales hasta equipos de ingeniería.",
+      "freeName": "Técnico Free",
+      "freePrice": "0 €",
+      "freePeriod": "/siempre",
+      "freeCta": "Empezar Gratis",
+      "proName": "Ingeniería Pro",
+      "proPrice": "4,99 €",
+      "proPeriod": "/mes",
+      "proCta": "Pasar a Pro",
+      "recommended": "Recomendado",
+      "ultimateName": "Elite Industrial",
+      "ultimatePrice": "16,99 €",
+      "ultimatePeriod": "/mes",
+      "ultimateCta": "Pasar a Elite"
+    },
+    "footer": {
+      "desc": "El estándar de la industria para el análisis de comunicaciones serie.",
+      "product": "Producto",
+      "features": "Características",
+      "roadmap": "Hoja de ruta",
+      "changelog": "Cambios",
+      "resources": "Recursos",
+      "docs": "Docs",
+      "community": "Comunidad",
+      "api": "API",
+      "company": "Compañía",
+      "about": "Acerca de",
+      "contact": "Contacto",
+      "legal": "Legal",
+      "statusOperational": "ESTADO_DEL_SISTEMA: OPERATIVO"
+    }
   }
 }

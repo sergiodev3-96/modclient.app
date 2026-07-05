@@ -17,7 +17,7 @@ export default function SlaveMapPage() {
   const supabase = createClient();
   const { isConnected } = useSerial();
 
-  const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
+  const [userPlan, setUserPlan] = useState<'free' | 'pro' | 'ultimate'>('free');
   const [projectId, setProjectId] = useState<string | null>(null);
   const [slaves, setSlaves] = useState<Map<number, SlaveStatus>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
@@ -28,7 +28,7 @@ export default function SlaveMapPage() {
       if (!user) return;
 
       const { data: profile } = await supabase.from('profiles').select('plan').eq('id', user.id).single() as { data: any, error: any };
-      if (profile) setUserPlan(profile.plan as 'free' | 'pro');
+      if (profile) setUserPlan(profile.plan as 'free' | 'pro' | 'ultimate');
 
       // Get active project
       const { data: projects } = await supabase.from('projects').select('id').eq('user_id', user.id).limit(1) as { data: any[] | null };
@@ -57,7 +57,7 @@ export default function SlaveMapPage() {
 
   if (isLoading) return <div className="skeleton" style={{ height: 400 }} />;
 
-  if (userPlan !== 'pro') {
+  if (userPlan === 'free') {
     return (
       <div className="card" style={{ maxWidth: 600, textAlign: 'center', padding: '48px 24px' }}>
         <div style={{ display: 'inline-flex', padding: 16, borderRadius: '50%', background: 'var(--bg-highest)', marginBottom: 24 }}>
