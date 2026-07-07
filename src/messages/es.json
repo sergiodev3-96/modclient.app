@@ -56,7 +56,9 @@
     "noResponse": "sin respuesta",
     "startPoll": "Iniciar Polling",
     "stopPoll": "Detener Polling",
-    "autoPoll": "Auto Polling"
+    "autoPoll": "Auto Polling",
+    "txPreview": "TX (Trama a enviar)",
+    "rxLast": "RX (Última respuesta)"
   },
   "macros": {
     "title": "Automatizaciones y Secuencias",
