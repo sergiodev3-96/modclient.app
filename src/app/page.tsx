@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
-import { Zap, Cpu, Network, ArrowRight, Check, X, Wrench } from 'lucide-react';
+import { Zap, Cpu, Network, ArrowRight, Check, X, Wrench, ChevronDown } from 'lucide-react';
 import styles from './page.module.css';
 
 export default async function HomePage() {
@@ -57,9 +57,7 @@ export default async function HomePage() {
             {t('hero.systemVersion')}
           </div>
           <h1 className={styles.title}>
-            {t('hero.title').split('Modbus RTU')[0]}
-            <span className={styles.accentText}>Modbus RTU</span>
-            {t('hero.title').split('Modbus RTU')[1] || ''}
+            {t('hero.title')}
           </h1>
           <p className={styles.subtitle}>
             {t('hero.subtitle')}
@@ -186,6 +184,71 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* ── COMPARISON SECTION ───────────────── */}
+        <section className={styles.comparisonSection} id="compare">
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>{t('comparison.title')}</h2>
+            <p className={styles.sectionDesc}>{t('comparison.desc')}</p>
+          </div>
+          <div className={styles.comparisonTable}>
+            <table className={styles.compareTable}>
+              <thead>
+                <tr>
+                  <th className={styles.compareThFeature}>Feature</th>
+                  <th className={styles.compareThModclient}>modclient</th>
+                  <th className={styles.compareTh}>QModMaster</th>
+                  <th className={styles.compareTh}>Modbus Poll</th>
+                  <th className={styles.compareTh}>ModScan</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>No installation required</td>
+                  <td><Check size={16} className={styles.compareCheckYes} /></td>
+                  <td><X size={16} className={styles.compareCheckNo} /></td>
+                  <td><X size={16} className={styles.compareCheckNo} /></td>
+                  <td><X size={16} className={styles.compareCheckNo} /></td>
+                </tr>
+                <tr>
+                  <td>Works on macOS / Linux</td>
+                  <td><Check size={16} className={styles.compareCheckYes} /></td>
+                  <td><Check size={16} className={styles.compareCheckYes} /></td>
+                  <td><X size={16} className={styles.compareCheckNo} /></td>
+                  <td><X size={16} className={styles.compareCheckNo} /></td>
+                </tr>
+                <tr>
+                  <td>Free plan (no time limit)</td>
+                  <td><Check size={16} className={styles.compareCheckYes} /></td>
+                  <td><Check size={16} className={styles.compareCheckYes} /></td>
+                  <td><X size={16} className={styles.compareCheckNo} /></td>
+                  <td><X size={16} className={styles.compareCheckNo} /></td>
+                </tr>
+                <tr>
+                  <td>Automation sequences</td>
+                  <td><Check size={16} className={styles.compareCheckYes} /></td>
+                  <td><X size={16} className={styles.compareCheckNo} /></td>
+                  <td><Check size={16} className={styles.compareCheckYes} /></td>
+                  <td><X size={16} className={styles.compareCheckNo} /></td>
+                </tr>
+                <tr>
+                  <td>Bus slave scanner</td>
+                  <td><Check size={16} className={styles.compareCheckYes} /></td>
+                  <td><X size={16} className={styles.compareCheckNo} /></td>
+                  <td><Check size={16} className={styles.compareCheckYes} /></td>
+                  <td><Check size={16} className={styles.compareCheckYes} /></td>
+                </tr>
+                <tr>
+                  <td>Register read &amp; write</td>
+                  <td><Check size={16} className={styles.compareCheckYes} /></td>
+                  <td><Check size={16} className={styles.compareCheckYes} /></td>
+                  <td><Check size={16} className={styles.compareCheckYes} /></td>
+                  <td><Check size={16} className={styles.compareCheckYes} /></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
         {/* ── PRICING SECTION ──────────────────── */}
         <section className={styles.pricingSection} id="pricing">
           <div className={styles.sectionHeader}>
@@ -266,6 +329,43 @@ export default async function HomePage() {
                 {t('pricing.ultimateCta')}
               </Link>
             </div>
+          </div>
+        </section>
+
+        {/* ── FAQ SECTION ──────────────────────── */}
+        <section className={styles.faqSection} id="faq">
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>{t('faq.title')}</h2>
+          </div>
+          <div className={styles.faqList}>
+            <details className={styles.faqItem}>
+              <summary className={styles.faqQuestion}>
+                <span>{t('faq.q1')}</span>
+                <ChevronDown size={18} className={styles.faqChevron} />
+              </summary>
+              <p className={styles.faqAnswer}>{t('faq.a1')}</p>
+            </details>
+            <details className={styles.faqItem}>
+              <summary className={styles.faqQuestion}>
+                <span>{t('faq.q2')}</span>
+                <ChevronDown size={18} className={styles.faqChevron} />
+              </summary>
+              <p className={styles.faqAnswer}>{t('faq.a2')}</p>
+            </details>
+            <details className={styles.faqItem}>
+              <summary className={styles.faqQuestion}>
+                <span>{t('faq.q3')}</span>
+                <ChevronDown size={18} className={styles.faqChevron} />
+              </summary>
+              <p className={styles.faqAnswer}>{t('faq.a3')}</p>
+            </details>
+            <details className={styles.faqItem}>
+              <summary className={styles.faqQuestion}>
+                <span>{t('faq.q4')}</span>
+                <ChevronDown size={18} className={styles.faqChevron} />
+              </summary>
+              <p className={styles.faqAnswer}>{t('faq.a4')}</p>
+            </details>
           </div>
         </section>
       </main>

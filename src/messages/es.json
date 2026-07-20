@@ -207,11 +207,11 @@
   },
   "landing": {
     "hero": {
-      "systemVersion": "SISTEMA LÓGICO INDUSTRIAL V4.0",
-      "title": "Control Modbus RTU Profesional",
-      "subtitle": "La consola definitiva para comunicaciones Modbus RS485. Mapeo de registros en tiempo real, secuencias automatizadas y registro de diagnóstico de alta densidad.",
-      "ctaStart": "Empezar Gratis",
-      "ctaDocs": "Documentación",
+      "systemVersion": "HERRAMIENTA DE PRUEBA MODBUS RTU — GRATIS Y ONLINE",
+      "title": "Prueba Dispositivos Modbus RTU Directamente desde el Navegador",
+      "subtitle": "El primer cliente Modbus online para comunicaciones RS485. Lee y escribe registros, escanea el bus y automatiza secuencias de prueba — sin instalar nada, sin drivers, sin software de escritorio.",
+      "ctaStart": "Empezar a Probar Gratis",
+      "ctaDocs": "Ver Documentación",
       "status": "Estado",
       "statusConnected": "CONECTADO",
       "latency": "Latencia",
@@ -221,30 +221,49 @@
       "errorRate": "Tasa de Error"
     },
     "audience": {
-      "title": "Creado para el Trabajo de Campo",
-      "desc": "Herramientas de precisión diseñadas para las exigencias de la automatización industrial y la ingeniería técnica.",
+      "title": "Creado para Profesionales Industriales",
+      "desc": "Una herramienta Modbus RTU dedicada, diseñada para ingenieros que necesitan diagnósticos rápidos y fiables sin instalar software de escritorio.",
       "fieldEngTitle": "Ingenieros de Campo",
-      "fieldEngDesc": "Resolución de problemas en planta con mapeo de registros de alta fidelidad y registros hexadecimales en tiempo real para una claridad de diagnóstico inmediata.",
-      "fieldEngCta": "Ver Herramientas",
+      "fieldEngDesc": "Diagnóstico Modbus RTU en planta desde cualquier portátil. Conecta tu adaptador USB-RS485, abre Chrome y empieza a leer registros en segundos.",
+      "fieldEngCta": "Empezar a Diagnosticar",
       "plcDevTitle": "Desarrolladores de PLC",
-      "plcDevDesc": "Simula respuestas de esclavos y automatiza la puesta en marcha con secuencias de automatización avanzadas y disparadores personalizables.",
-      "plcDevCta": "APIs de Automatización",
+      "plcDevDesc": "Valida mapas de registros, prueba respuestas de esclavos y automatiza secuencias de puesta en marcha sin salir del navegador.",
+      "plcDevCta": "Explorar Automatización",
       "sysIntTitle": "Integradores de Sistemas",
-      "sysIntDesc": "Verifica topologías complejas de múltiples esclavos. Identifica colisiones de direcciones y cuellos de botella en toda la cadena RS485.",
-      "sysIntCta": "Mapas de Integración"
+      "sysIntDesc": "Escanea redes RS485 completas, detecta colisiones de ID de esclavo y verifica la comunicación en topologías complejas de múltiples dispositivos.",
+      "sysIntCta": "Escanear el Bus"
     },
     "features": {
-      "registersTitle": "Mapeo de Registros en Tiempo Real",
-      "registersDesc": "Experimenta una vista en vivo y codificada por colores de cada registro de tu red. Nuestra interfaz de precisión traduce datos hexadecimales sin procesar a unidades de ingeniería legibles.",
-      "registersItem1": "Soporte multi-formato (Float, Int32, BCD)",
-      "registersItem2": "Identificación por auto-escaneo de IDs de Esclavo",
-      "registersItem3": "Registro persistente para análisis sin conexión",
-      "scanTitle": "Secuencias de Escaneo Autónomas",
-      "scanDesc": "Mapea toda la topología de tu red en segundos. Nuestro algoritmo de escaneo inteligente identifica velocidades de baudios y ajustes de paridad automáticamente."
+      "registersTitle": "Mapeo de Registros Modbus — Lectura y Escritura en Tiempo Real",
+      "registersDesc": "Lee Holding Registers (FC03), Input Registers (FC04) y escribe registros individuales o múltiples (FC06/FC16). Tramas hex crudas mostradas en vivo con validación automática de CRC-16.",
+      "registersItem1": "Visualización multi-formato: Float32, Int16, Int32, BCD, Hex",
+      "registersItem2": "Auto-polling con intervalos configurables",
+      "registersItem3": "Exporta logs a CSV y JSON para análisis offline",
+      "scanTitle": "Escáner de Bus RS485 — Detecta Todos los Esclavos Modbus",
+      "scanDesc": "Escanea automáticamente toda tu red RS485 para detectar todos los dispositivos esclavos activos (IDs 1–247). Detección inteligente de velocidad de baudios y paridad sin configuración manual."
+    },
+    "comparison": {
+      "title": "Por Qué los Ingenieros Cambian de las Herramientas de Escritorio",
+      "desc": "modclient te ofrece las funcionalidades principales de QModMaster, Modbus Poll y ModScan — sin instalación, sin coste de licencia y sin restricción de sistema operativo.",
+      "feature1": "Sin instalación ni drivers",
+      "feature2": "Funciona en Windows, macOS y Linux",
+      "feature3": "Plan gratuito sin límite de tiempo",
+      "feature4": "Funciona en cualquier navegador moderno"
+    },
+    "faq": {
+      "title": "Preguntas Frecuentes",
+      "q1": "¿Qué es una herramienta de prueba Modbus RTU?",
+      "a1": "Una herramienta de prueba Modbus RTU permite enviar y recibir tramas Modbus a dispositivos esclavos a través de un bus serie RS485. Se usa para leer valores de sensores, escribir consignas y verificar la comunicación durante la puesta en marcha o la resolución de problemas.",
+      "q2": "¿Necesito instalar algo?",
+      "a2": "No. modclient funciona completamente en Chrome o Edge mediante la Web Serial API. Solo conecta tu adaptador USB-RS485 y abre la aplicación.",
+      "q3": "¿Es modclient gratuito?",
+      "a3": "Sí. El plan Técnico Gratuito no tiene límite de tiempo e incluye lectura/escritura de registros, la consola de tramas y automatizaciones básicas.",
+      "q4": "¿Es una alternativa a QModMaster o Modbus Poll?",
+      "a4": "Sí. modclient ofrece la misma funcionalidad Modbus master que QModMaster, Modbus Poll y ModScan — pero funciona en el navegador, por lo que no hay que instalar nada y funciona en cualquier sistema operativo."
     },
     "pricing": {
-      "title": "Licencias Escalables",
-      "desc": "Elige el plan que se adapte a tus necesidades operativas, desde técnicos individuales hasta equipos de ingeniería.",
+      "title": "Pruebas Modbus Gratis. Escala Cuando Lo Necesites.",
+      "desc": "Empieza con el plan gratuito — sin tarjeta de crédito ni límite de tiempo. Sube de plan para acceder a funciones avanzadas en proyectos exigentes.",
       "freeName": "Técnico Free",
       "freePrice": "0 €",
       "freePeriod": "/siempre",
@@ -260,7 +279,7 @@
       "ultimateCta": "Pasar a Elite"
     },
     "footer": {
-      "desc": "El estándar de la industria para el análisis de comunicaciones serie.",
+      "desc": "Herramienta online gratuita para pruebas Modbus RTU. Sin instalación.",
       "product": "Producto",
       "features": "Características",
       "roadmap": "Hoja de ruta",

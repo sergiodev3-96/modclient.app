@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
-import { Eye, EyeOff, Shield, Zap } from 'lucide-react';
+import { Eye, EyeOff, Zap } from 'lucide-react';
 import styles from './auth.module.css';
 
 export default function LoginPage() {
@@ -139,12 +139,6 @@ export default function LoginPage() {
                 {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
             </div>
-          </div>
-
-          {/* Security notice */}
-          <div className={styles.securityNotice}>
-            <Shield size={13} />
-            <span>{t('securityNotice')}</span>
           </div>
 
           {error && (

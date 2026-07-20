@@ -207,11 +207,11 @@
   },
   "landing": {
     "hero": {
-      "systemVersion": "INDUSTRIAL LOGIC SYSTEM V4.0",
-      "title": "Professional Modbus RTU Control",
-      "subtitle": "The ultimate console for Modbus RS485 communication. Real-time register mapping, automated sequences, and high-density diagnostic logging.",
-      "ctaStart": "Get Started Free",
-      "ctaDocs": "Documentation",
+      "systemVersion": "MODBUS RTU TESTING TOOL — FREE & ONLINE",
+      "title": "Test Modbus RTU Devices Directly From Your Browser",
+      "subtitle": "The first online Modbus client for RS485 communication. Read and write registers, scan the bus, and automate test sequences — no installation, no drivers, no desktop software required.",
+      "ctaStart": "Start Testing Free",
+      "ctaDocs": "View Documentation",
       "status": "Status",
       "statusConnected": "CONNECTED",
       "latency": "Latency",
@@ -221,30 +221,49 @@
       "errorRate": "Error Rate"
     },
     "audience": {
-      "title": "Built for the Field",
-      "desc": "Precision tools designed for the rigors of industrial automation and technical engineering.",
+      "title": "Built for Industrial Professionals",
+      "desc": "A dedicated Modbus RTU testing tool designed for engineers who need fast, reliable diagnostics — without installing desktop software.",
       "fieldEngTitle": "Field Engineers",
-      "fieldEngDesc": "On-site troubleshooting with high-fidelity register mapping and real-time hex logs for immediate diagnostic clarity.",
-      "fieldEngCta": "View Toolkit",
+      "fieldEngDesc": "On-site Modbus RTU diagnostics from any laptop. Plug in your USB-RS485 adapter, open Chrome, and start reading registers in seconds.",
+      "fieldEngCta": "Start Diagnosing",
       "plcDevTitle": "PLC Developers",
-      "plcDevDesc": "Simulate slave responses and automate device commissioning with advanced automation sequencing and scriptable triggers.",
-      "plcDevCta": "Automation APIs",
+      "plcDevDesc": "Validate register maps, test slave responses, and automate commissioning sequences without leaving the browser.",
+      "plcDevCta": "Explore Automation",
       "sysIntTitle": "Systems Integrators",
-      "sysIntDesc": "Verify complex multi-slave topologies. Identify address collisions and communication bottlenecks across the entire RS485 chain.",
-      "sysIntCta": "Integration Maps"
+      "sysIntDesc": "Scan entire RS485 networks, detect slave ID collisions, and verify communication across complex multi-device topologies.",
+      "sysIntCta": "Scan the Bus"
     },
     "features": {
-      "registersTitle": "Real-Time Register Mapping",
-      "registersDesc": "Experience a live, color-coded view of every register in your network. Our precision interface translates raw hex data into human-readable engineering units in real-time.",
-      "registersItem1": "Multi-format support (Float, Int32, BCD)",
-      "registersItem2": "Auto-scan identification for Slave IDs",
-      "registersItem3": "Persistence logging for offline analysis",
-      "scanTitle": "Autonomous Scan Sequences",
-      "scanDesc": "Automatically map your entire network topology in seconds. Our smart scan algorithm identifies baud rates and parity settings without manual configuration."
+      "registersTitle": "Modbus Register Mapping — Read & Write in Real Time",
+      "registersDesc": "Read Holding Registers (FC03), Input Registers (FC04), and write single or multiple registers (FC06/FC16). Raw hex frames displayed live with automatic CRC-16 validation.",
+      "registersItem1": "Multi-format display: Float32, Int16, Int32, BCD, Hex",
+      "registersItem2": "Auto-polling with configurable intervals",
+      "registersItem3": "Export logs to CSV and JSON for offline analysis",
+      "scanTitle": "RS485 Bus Scanner — Auto-Detect All Modbus Slaves",
+      "scanDesc": "Automatically scan your entire RS485 network to detect all active slave devices (IDs 1–247). Smart baud rate and parity detection — no manual configuration needed."
+    },
+    "comparison": {
+      "title": "Why Engineers Switch from Desktop Tools",
+      "desc": "modclient gives you the core capabilities of QModMaster, Modbus Poll, and ModScan — without the installation, the license cost, or the OS restriction.",
+      "feature1": "No installation or drivers",
+      "feature2": "Works on Windows, macOS, and Linux",
+      "feature3": "Free plan with no time limit",
+      "feature4": "Runs on any modern browser"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": "What is a Modbus RTU testing tool?",
+      "a1": "A Modbus RTU testing tool lets you send and receive Modbus frames to slave devices over an RS485 serial bus. It is used to read sensor values, write setpoints, and verify device communication during commissioning or troubleshooting.",
+      "q2": "Do I need to install anything?",
+      "a2": "No. modclient runs entirely in Chrome or Edge using the Web Serial API. Just plug in your USB-RS485 adapter and open the app.",
+      "q3": "Is modclient free?",
+      "a3": "Yes. The Technician Free plan has no time limit and includes register reading/writing, the frame console, and basic automations.",
+      "q4": "Is this an alternative to QModMaster or Modbus Poll?",
+      "a4": "Yes. modclient provides the same core Modbus master functionality as QModMaster, Modbus Poll, and ModScan — but it runs in the browser, so there is nothing to install and it works on any OS."
     },
     "pricing": {
-      "title": "Scalable Licensing",
-      "desc": "Choose the plan that fits your operational needs, from solo technicians to enterprise teams.",
+      "title": "Free Modbus Testing. Scale When You Need.",
+      "desc": "Start with the free plan — no credit card, no time limit. Upgrade to unlock advanced features for demanding projects.",
       "freeName": "Technician Free",
       "freePrice": "0 €",
       "freePeriod": "/forever",
@@ -260,7 +279,7 @@
       "ultimateCta": "Go Elite"
     },
     "footer": {
-      "desc": "The industry standard for serial communications analysis.",
+      "desc": "Free online Modbus RTU testing tool. No installation required.",
       "product": "Product",
       "features": "Features",
       "roadmap": "Roadmap",
